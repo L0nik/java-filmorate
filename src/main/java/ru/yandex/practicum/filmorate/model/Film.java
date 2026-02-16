@@ -1,12 +1,50 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+
+import java.time.LocalDate;
+import java.util.Optional;
+
 
 /**
  * Film.
  */
-@Getter
-@Setter
+@Data
 public class Film {
+    Long id;
+    String name;
+    String description;
+    LocalDate releaseDate;
+    Integer duration;
+
+    private static final int maxDescriptionLength = 200;
+    private static final LocalDate minReleaseDate = LocalDate.of(1895, 12, 28);
+
+    public Optional<String> validateName() {
+        if (name == null || name.isBlank()) {
+            return Optional.of("Название не может быть пустым");
+        }
+        return Optional.empty();
+    }
+
+    public Optional<String> validateDescription() {
+        if (description != null && description.length() > maxDescriptionLength) {
+            return Optional.of(String.format("Максимальная длина описания — %d символов", maxDescriptionLength));
+        }
+        return Optional.empty();
+    }
+
+    public Optional<String> validateReleaseDate() {
+        if (releaseDate != null && releaseDate.isBefore(minReleaseDate)) {
+            return Optional.of(String.format("Дата релиза — не раньше 28 декабря 1895 года", minReleaseDate));
+        }
+        return Optional.empty();
+    }
+
+    public Optional<String> validateDuration() {
+        if (duration != null && duration <= 0) {
+            return Optional.of("Продолжительность фильма должна быть положительным числом");
+        }
+        return Optional.empty();
+    }
 }
