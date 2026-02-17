@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.model;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 
@@ -36,7 +37,9 @@ public class Film {
 
     public Optional<String> validateReleaseDate() {
         if (releaseDate != null && releaseDate.isBefore(minReleaseDate)) {
-            return Optional.of(String.format("Дата релиза — не раньше 28 декабря 1895 года", minReleaseDate));
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+            String message = String.format("Дата релиза — не раньше %s", minReleaseDate.format(formatter));
+            return Optional.of(message);
         }
         return Optional.empty();
     }
