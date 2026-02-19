@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
+import lombok.Getter;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -18,7 +19,10 @@ public class Film {
     LocalDate releaseDate;
     Integer duration;
 
+    @Getter
     private static final int maxDescriptionLength = 200;
+
+    @Getter
     private static final LocalDate minReleaseDate = LocalDate.of(1895, 12, 28);
 
     public Optional<String> validateName() {
