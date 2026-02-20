@@ -6,8 +6,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 @Data
-public class User {
-    Long id;
+public class User extends BaseModel {
     String email;
     String login;
     String name;

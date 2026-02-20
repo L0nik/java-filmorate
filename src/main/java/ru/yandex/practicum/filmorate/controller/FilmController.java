@@ -10,28 +10,18 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-import java.util.function.Consumer;
 
 @RestController
 @RequestMapping("/films")
-public class FilmController {
-
-    private final Map<Long, Film> films = new HashMap<>();
+public class FilmController extends BaseController {
     private final static Logger log = LoggerFactory.getLogger(FilmController.class);
-
-    private final static Consumer<Optional<String>> validationErrorConsumer = (errorOpt) -> {
-        if (errorOpt.isPresent()) {
-            log.error(errorOpt.get());
-            throw new ValidationException(errorOpt.get());
-        }
-    };
+    private final Map<Long, Film> films = new HashMap<>();
 
     @PostMapping
     public Film addFilm(@RequestBody Film newFilm) throws ValidationException {
         log.info("Получен запрос на добавление фильма: {}", newFilm);
         validateFilm(newFilm);
-        newFilm.setId(getNextId());
+        newFilm.setId(getNextId(films));
         films.put(newFilm.getId(), newFilm);
         log.info("Добавлен новый фильм: {}", newFilm);
         return newFilm;
@@ -91,12 +81,4 @@ public class FilmController {
         validationErrorConsumer.accept(film.validateDuration());
     }
 
-    private long getNextId() {
-        long currentMaxId = films.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
-    }
 }

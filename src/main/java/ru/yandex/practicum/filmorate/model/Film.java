@@ -12,8 +12,7 @@ import java.util.Optional;
  * Film.
  */
 @Data
-public class Film {
-    Long id;
+public class Film extends BaseModel {
     String name;
     String description;
     LocalDate releaseDate;

@@ -10,28 +10,19 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-import java.util.function.Consumer;
 
 @RestController
 @RequestMapping("/users")
-public class UserController {
+public class UserController extends BaseController {
 
     private final Map<Long, User> users = new HashMap<>();
     private final static Logger log = LoggerFactory.getLogger(UserController.class);
-
-    private final static Consumer<Optional<String>> validationErrorConsumer = (errorOpt) -> {
-        if (errorOpt.isPresent()) {
-            log.error(errorOpt.get());
-            throw new ValidationException(errorOpt.get());
-        }
-    };
 
     @PostMapping
     public User addUser(@RequestBody User newUser) throws ValidationException {
         log.info("Получен запрос на добавление пользователя: {}", newUser);
         validateUser(newUser);
-        newUser.setId(getNextId());
+        newUser.setId(getNextId(users));
         if (newUser.getName() == null || newUser.getName().isBlank()) {
             newUser.setName(newUser.getLogin());
         }
@@ -95,12 +86,4 @@ public class UserController {
         validationErrorConsumer.accept(user.validateBirthday());
     }
 
-    private long getNextId() {
-        long currentMaxId = users.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
-    }
 }
