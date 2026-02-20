@@ -37,8 +37,7 @@ public class FilmControllerTests {
 
     @Test
     @DisplayName("GET /films -> 200 OK")
-    void GetShouldReturn200WhenGetFilms() throws IOException, InterruptedException
-    {
+    void getShouldReturn200WhenGetFilms() throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL))
                 .GET()
@@ -49,7 +48,7 @@ public class FilmControllerTests {
 
     @Test
     @DisplayName("POST /films - валидный фильм -> 200")
-    void PostShouldCreateFilmWhenValid() throws Exception {
+    void postShouldCreateFilmWhenValid() throws Exception {
 
         Film film = createValidFilm();
 
@@ -67,7 +66,7 @@ public class FilmControllerTests {
 
     @Test
     @DisplayName("POST /films - пустое название -> 500")
-    void PostShouldReturn500WhenNameIsBlank() throws Exception {
+    void postShouldReturn500WhenNameIsBlank() throws Exception {
 
         Film film = createValidFilm();
         film.setName("");
@@ -81,7 +80,7 @@ public class FilmControllerTests {
 
     @Test
     @DisplayName("POST /films - отсутствует название -> 500")
-    void PostShouldReturn500WhenNameIsNull() throws Exception {
+    void postShouldReturn500WhenNameIsNull() throws Exception {
 
         Film film = createValidFilm();
         film.setName(null);
@@ -95,7 +94,7 @@ public class FilmControllerTests {
 
     @Test
     @DisplayName("POST /films - длина описания равна максимальной длине -> 200 OK")
-    void PostShouldCreateFilmWhenDescriptionIs200Chars() throws Exception {
+    void postShouldCreateFilmWhenDescriptionIs200Chars() throws Exception {
 
         Film film = createValidFilm();
         film.setDescription("a".repeat(maxDescriptionLength));
@@ -112,7 +111,7 @@ public class FilmControllerTests {
 
     @Test
     @DisplayName("POST /films - длина описания больше максимальной -> 500")
-    void PostShouldReturn500WhenDescriptionTooLong() throws Exception {
+    void postShouldReturn500WhenDescriptionTooLong() throws Exception {
 
         Film film = createValidFilm();
         film.setDescription("a".repeat(maxDescriptionLength + 1));
@@ -126,7 +125,7 @@ public class FilmControllerTests {
 
     @Test
     @DisplayName("POST /films - дата релиза = минимальная дата релиза -> 200 OK")
-    void PostShouldCreateFilmWhenReleaseDateIsBoundary() throws Exception {
+    void postShouldCreateFilmWhenReleaseDateIsBoundary() throws Exception {
 
         Film film = createValidFilm();
         film.setReleaseDate(minReleaseDate);
@@ -143,7 +142,7 @@ public class FilmControllerTests {
 
     @Test
     @DisplayName("POST /films - releaseDate раньше минимальной даты релиза -> 500")
-    void PostShouldReturn500WhenReleaseDateTooEarly() throws Exception {
+    void postShouldReturn500WhenReleaseDateTooEarly() throws Exception {
 
         Film film = createValidFilm();
         film.setReleaseDate(minReleaseDate.minusDays(1));
@@ -157,7 +156,7 @@ public class FilmControllerTests {
 
     @Test
     @DisplayName("POST /films - продолжительность фильма < 0 -> 500")
-    void PostShouldReturn500WhenDurationNegative() throws Exception {
+    void postShouldReturn500WhenDurationNegative() throws Exception {
 
         Film film = createValidFilm();
         film.setDuration(-10);
@@ -171,7 +170,7 @@ public class FilmControllerTests {
 
     @Test
     @DisplayName("POST /films - продолжительность фильма = 0 -> 500")
-    void PostShouldReturn500WhenDurationIs0() throws Exception {
+    void postShouldReturn500WhenDurationIs0() throws Exception {
 
         Film film = createValidFilm();
         film.setDuration(0);
@@ -185,14 +184,14 @@ public class FilmControllerTests {
 
     @Test
     @DisplayName("POST /films - пустое тело -> 400")
-    void PostShouldReturn400WhenEmptyBody() throws IOException, InterruptedException {
+    void postShouldReturn400WhenEmptyBody() throws IOException, InterruptedException {
         HttpResponse<String> response = sendPost("");
         assertEquals(400, response.statusCode());
     }
 
     @Test
     @DisplayName("PUT /films - валидное обновление -> 200 OK")
-    void PutShouldUpdateFilmWhenValid() throws Exception {
+    void putShouldUpdateFilmWhenValid() throws Exception {
 
         Film film = createValidFilm();
 
@@ -214,7 +213,7 @@ public class FilmControllerTests {
 
     @Test
     @DisplayName("PUT /films - отсутствует id -> 500")
-    void PutShouldReturn500WhenIdMissing() throws Exception {
+    void putShouldReturn500WhenIdMissing() throws Exception {
 
         Film film = createValidFilm();
         film.setId(null);
@@ -227,7 +226,7 @@ public class FilmControllerTests {
 
     @Test
     @DisplayName("PUT /films - не существующий id -> 500")
-    void PutShouldReturn500WhenIdNotExists() throws Exception {
+    void putShouldReturn500WhenIdNotExists() throws Exception {
 
         Film film = createValidFilm();
         film.setId(9999L);
@@ -240,7 +239,7 @@ public class FilmControllerTests {
 
     @Test
     @DisplayName("PUT /films - пустое название -> 500")
-    void PutShouldReturn500WhenNameIsBlank() throws Exception {
+    void putShouldReturn500WhenNameIsBlank() throws Exception {
 
         Film film = createValidFilm();
         film.setName("");
@@ -253,7 +252,7 @@ public class FilmControllerTests {
 
     @Test
     @DisplayName("PUT /films - длина описания больше максимальной -> 500")
-    void PutShouldReturn500WhenDescriptionTooLong() throws Exception {
+    void putShouldReturn500WhenDescriptionTooLong() throws Exception {
 
         Film film = createValidFilm();
 
@@ -267,7 +266,7 @@ public class FilmControllerTests {
 
     @Test
     @DisplayName("PUT /films - длина описания больше максимальной -> 200")
-    void PutShouldReturn500WhenDescriptionLengthIsBoundary() throws Exception {
+    void putShouldReturn500WhenDescriptionLengthIsBoundary() throws Exception {
 
         Film film = createValidFilm();
 
@@ -290,7 +289,7 @@ public class FilmControllerTests {
 
     @Test
     @DisplayName("PUT /films - releaseDate равна минимальной дате релиза -> 500")
-    void PutShouldUpdateFilmWhenReleaseDateIsBoundary() throws Exception {
+    void putShouldUpdateFilmWhenReleaseDateIsBoundary() throws Exception {
 
         Film film = createValidFilm();
 
@@ -314,7 +313,7 @@ public class FilmControllerTests {
 
     @Test
     @DisplayName("PUT /films - releaseDate раньше минимальной даты релиза -> 500")
-    void PutShouldReturn500WhenReleaseDateTooEarly() throws Exception {
+    void putShouldReturn500WhenReleaseDateTooEarly() throws Exception {
 
         Film film = createValidFilm();
         film.setReleaseDate(minReleaseDate.minusDays(1));
@@ -327,7 +326,7 @@ public class FilmControllerTests {
 
     @Test
     @DisplayName("PUT /films - продолжительность < 0 -> 500")
-    void PutShouldReturn500WhenDurationNegative() throws Exception {
+    void putShouldReturn500WhenDurationNegative() throws Exception {
 
         Film film = createValidFilm();
         film.setDuration(-100);
@@ -340,7 +339,7 @@ public class FilmControllerTests {
 
     @Test
     @DisplayName("PUT /films - продолжительность = 0 -> 500")
-    void PutShouldReturn500WhenDurationIs0() throws Exception {
+    void putShouldReturn500WhenDurationIs0() throws Exception {
 
         Film film = createValidFilm();
         film.setDuration(-100);
@@ -353,7 +352,7 @@ public class FilmControllerTests {
 
     @Test
     @DisplayName("PUT /films - пустое тело -> 400")
-    void PutShouldReturn400WhenEmptyBody() throws IOException, InterruptedException {
+    void putShouldReturn400WhenEmptyBody() throws IOException, InterruptedException {
         HttpResponse<String> response = sendPut("");
         assertEquals(400, response.statusCode());
     }

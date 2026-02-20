@@ -33,7 +33,7 @@ public class UserControllerTests {
 
     @Test
     @DisplayName("POST /users - валидный пользователь -> 200")
-    void PostShouldCreateUserWhenValid() throws Exception {
+    void postShouldCreateUserWhenValid() throws Exception {
 
         User user = createValidUser();
 
@@ -53,7 +53,7 @@ public class UserControllerTests {
 
     @Test
     @DisplayName("POST /users - валидный пользователь (пустое имя) -> 200")
-    void PostShouldCreateUserWhenValidWhenNameIsBlank() throws Exception {
+    void postShouldCreateUserWhenValidWhenNameIsBlank() throws Exception {
 
         User user = createValidUser();
         user.setName("");
@@ -74,7 +74,7 @@ public class UserControllerTests {
 
     @Test
     @DisplayName("POST /users - пустой email -> 500")
-    void PostShouldReturn500WhenEmailIsBlank() throws Exception {
+    void postShouldReturn500WhenEmailIsBlank() throws Exception {
 
         User user = createValidUser();
         user.setEmail("");
@@ -88,7 +88,7 @@ public class UserControllerTests {
 
     @Test
     @DisplayName("POST /users - email отсутствует -> 500")
-    void PostShouldReturn500WhenEmailIsNull() throws Exception {
+    void postShouldReturn500WhenEmailIsNull() throws Exception {
 
         User user = createValidUser();
         user.setEmail(null);
@@ -102,7 +102,7 @@ public class UserControllerTests {
 
     @Test
     @DisplayName("POST /users - email не содержит @ -> 500")
-    void PostShouldReturn500WhenEmailHasNoAtSign() throws Exception {
+    void postShouldReturn500WhenEmailHasNoAtSign() throws Exception {
 
         User user = createValidUser();
         user.setEmail("testemail.com");
@@ -116,7 +116,7 @@ public class UserControllerTests {
 
     @Test
     @DisplayName("POST /users - пустой логин -> 500")
-    void PostShouldReturn500WhenLoginIsBlank() throws Exception {
+    void postShouldReturn500WhenLoginIsBlank() throws Exception {
 
         User user = createValidUser();
         user.setLogin("");
@@ -130,7 +130,7 @@ public class UserControllerTests {
 
     @Test
     @DisplayName("POST /users - отсутствует логин -> 500")
-    void PostShouldReturn500WhenLoginIsNull() throws Exception {
+    void postShouldReturn500WhenLoginIsNull() throws Exception {
 
         User user = createValidUser();
         user.setLogin(null);
@@ -144,7 +144,7 @@ public class UserControllerTests {
 
     @Test
     @DisplayName("POST /users - в логине есть пробелы -> 500")
-    void PostShouldReturn500WhenLoginHasWhitespaces() throws Exception {
+    void postShouldReturn500WhenLoginHasWhitespaces() throws Exception {
 
         User user = createValidUser();
         user.setLogin("test login");
@@ -158,7 +158,7 @@ public class UserControllerTests {
 
     @Test
     @DisplayName("POST /users - дата рождения в будущем -> 500")
-    void PostShouldReturn500WhenBirthdayInFuture() throws Exception {
+    void postShouldReturn500WhenBirthdayInFuture() throws Exception {
 
         User user = createValidUser();
         user.setBirthday(LocalDate.now().plusDays(1));
@@ -172,7 +172,7 @@ public class UserControllerTests {
 
     @Test
     @DisplayName("POST /users - дата рождения сегодня -> 200")
-    void PostShouldCreateUserWhenBirthdayIsToday() throws Exception {
+    void postShouldCreateUserWhenBirthdayIsToday() throws Exception {
 
         User user = createValidUser();
         user.setBirthday(LocalDate.now());
@@ -189,14 +189,14 @@ public class UserControllerTests {
 
     @Test
     @DisplayName("POST /users - отсутствует тело запроса -> 400")
-    void PostShouldReturn400WhenBodyIsAbsent() throws Exception {
+    void postShouldReturn400WhenBodyIsAbsent() throws Exception {
         HttpResponse<String> response = sendPost("");
         assertEquals(400, response.statusCode());
     }
 
     @Test
     @DisplayName("PUT /users - валидное обновление пользователя -> 200")
-    void PutShouldUpdateUserWhenValid() throws Exception {
+    void putShouldUpdateUserWhenValid() throws Exception {
 
         User user = createValidUser();
         HttpResponse<String> response = sendPost(gson.toJson(user));
@@ -213,7 +213,7 @@ public class UserControllerTests {
 
     @Test
     @DisplayName("PUT /users - валидное обновление пользователя (пустое имя) -> 200")
-    void PutShouldUpdateUserWhenValidAndNameIsBlank() throws Exception {
+    void putShouldUpdateUserWhenValidAndNameIsBlank() throws Exception {
 
         User user = createValidUser();
         HttpResponse<String> response = sendPost(gson.toJson(user));
@@ -230,7 +230,7 @@ public class UserControllerTests {
 
     @Test
     @DisplayName("PUT /users - отсутствует id -> 500")
-    void PutShouldReturn500WhenIdMissing() throws Exception {
+    void putShouldReturn500WhenIdMissing() throws Exception {
 
         User user = createValidUser();
         user.setId(null);
@@ -243,7 +243,7 @@ public class UserControllerTests {
 
     @Test
     @DisplayName("PUT /users - не существующий id -> 500")
-    void PutShouldReturn500WhenIdNotExists() throws Exception {
+    void putShouldReturn500WhenIdNotExists() throws Exception {
 
         User user = createValidUser();
         user.setId(9999L);
@@ -256,7 +256,7 @@ public class UserControllerTests {
 
     @Test
     @DisplayName("PUT /users - пустой email -> 500")
-    void PutShouldReturn500WhenEmailIsBlank() throws Exception {
+    void putShouldReturn500WhenEmailIsBlank() throws Exception {
 
         User user = createValidUser();
         user.setEmail("");
@@ -269,7 +269,7 @@ public class UserControllerTests {
 
     @Test
     @DisplayName("PUT /users - email не содержит знак @ -> 500")
-    void PutShouldReturn500WhenEmailHasNoAtSign() throws Exception {
+    void putShouldReturn500WhenEmailHasNoAtSign() throws Exception {
 
         User user = createValidUser();
         user.setEmail("testemail.com");
@@ -282,7 +282,7 @@ public class UserControllerTests {
 
     @Test
     @DisplayName("PUT /users - пустой логин -> 500")
-    void PutShouldReturn500WhenLoginIsBlank() throws Exception {
+    void putShouldReturn500WhenLoginIsBlank() throws Exception {
 
         User user = createValidUser();
         user.setLogin("");
@@ -295,7 +295,7 @@ public class UserControllerTests {
 
     @Test
     @DisplayName("PUT /users - логин содержит пробелы -> 500")
-    void PutShouldReturn500WhenLoginHasWhitespaces() throws Exception {
+    void putShouldReturn500WhenLoginHasWhitespaces() throws Exception {
 
         User user = createValidUser();
         user.setLogin("test login");
@@ -308,7 +308,7 @@ public class UserControllerTests {
 
     @Test
     @DisplayName("PUT /users - дата рождения в будущем -> 500")
-    void PutShouldReturn500WhenBirthdayInFuture() throws Exception {
+    void putShouldReturn500WhenBirthdayInFuture() throws Exception {
 
         User user = createValidUser();
         user.setBirthday(LocalDate.now().plusDays(1));
@@ -321,7 +321,7 @@ public class UserControllerTests {
 
     @Test
     @DisplayName("PUT /users - дата рождения сегодня -> 200")
-    void PutShouldUpdateUserWhenBirthdayIsToday() throws Exception {
+    void putShouldUpdateUserWhenBirthdayIsToday() throws Exception {
 
         User user = createValidUser();
         HttpResponse<String> response = sendPost(gson.toJson(user));
@@ -338,7 +338,7 @@ public class UserControllerTests {
 
     @Test
     @DisplayName("PUT /users - тело отсутствует -> 400")
-    void PutShouldReturn400WhenBodyIsAbsent() throws Exception {
+    void putShouldReturn400WhenBodyIsAbsent() throws Exception {
         HttpResponse<String> response = sendPut("");
         assertEquals(400, response.statusCode());
     }
