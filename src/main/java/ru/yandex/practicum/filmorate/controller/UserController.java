@@ -16,7 +16,7 @@ import java.util.Map;
 public class UserController extends BaseController {
 
     private final Map<Long, User> users = new HashMap<>();
-    private final static Logger log = LoggerFactory.getLogger(UserController.class);
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
     @PostMapping
     public User addUser(@RequestBody User newUser) throws ValidationException {
