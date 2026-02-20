@@ -17,6 +17,11 @@ public class FilmController extends BaseController {
     private static final Logger log = LoggerFactory.getLogger(FilmController.class);
     private final Map<Long, Film> films = new HashMap<>();
 
+    @Override
+    protected Logger getLogger() {
+        return log;
+    }
+
     @PostMapping
     public Film addFilm(@RequestBody Film newFilm) throws ValidationException {
         log.info("Получен запрос на добавление фильма: {}", newFilm);
@@ -46,22 +51,22 @@ public class FilmController extends BaseController {
         }
         log.info("Начало обновления фильма: {}", film);
         if (newFilm.getName() != null) {
-            validationErrorConsumer.accept(newFilm.validateName());
+            handleValidationError(newFilm.validateName());
             film.setName(newFilm.getName());
         }
 
         if (newFilm.getDescription() != null) {
-            validationErrorConsumer.accept(newFilm.validateDescription());
+            handleValidationError(newFilm.validateDescription());
             film.setDescription(newFilm.getDescription());
         }
 
         if (newFilm.getReleaseDate() != null) {
-            validationErrorConsumer.accept(newFilm.validateReleaseDate());
+            handleValidationError(newFilm.validateReleaseDate());
             film.setReleaseDate(newFilm.getReleaseDate());
         }
 
         if (newFilm.getDuration() != null) {
-            validationErrorConsumer.accept(newFilm.validateDuration());
+            handleValidationError(newFilm.validateDuration());
             film.setDuration(newFilm.getDuration());
         }
         log.info("Фильм успешно обновлен: {}", film);
@@ -75,10 +80,10 @@ public class FilmController extends BaseController {
     }
 
     private void validateFilm(Film film) throws ValidationException {
-        validationErrorConsumer.accept(film.validateName());
-        validationErrorConsumer.accept(film.validateDescription());
-        validationErrorConsumer.accept(film.validateReleaseDate());
-        validationErrorConsumer.accept(film.validateDuration());
+        handleValidationError(film.validateName());
+        handleValidationError(film.validateDescription());
+        handleValidationError(film.validateReleaseDate());
+        handleValidationError(film.validateDuration());
     }
 
 }

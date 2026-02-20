@@ -18,6 +18,11 @@ public class UserController extends BaseController {
     private final Map<Long, User> users = new HashMap<>();
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
+    @Override
+    protected Logger getLogger() {
+        return log;
+    }
+
     @PostMapping
     public User addUser(@RequestBody User newUser) throws ValidationException {
         log.info("Получен запрос на добавление пользователя: {}", newUser);
@@ -51,12 +56,12 @@ public class UserController extends BaseController {
 
         log.info("Начало обновления пользователя: {}", user);
         if (newUser.getEmail() != null) {
-            validationErrorConsumer.accept(newUser.validateEmail());
+            handleValidationError(newUser.validateEmail());
             user.setEmail(newUser.getEmail());
         }
 
         if (newUser.getLogin() != null) {
-            validationErrorConsumer.accept(newUser.validateLogin());
+            handleValidationError(newUser.validateLogin());
             user.setLogin(newUser.getLogin());
         }
 
@@ -67,7 +72,7 @@ public class UserController extends BaseController {
         }
 
         if (newUser.getBirthday() != null) {
-            validationErrorConsumer.accept(newUser.validateBirthday());
+            handleValidationError(newUser.validateBirthday());
             user.setBirthday(newUser.getBirthday());
         }
         log.info("Пользователь успешно обновлен: {}", user);
@@ -81,9 +86,9 @@ public class UserController extends BaseController {
     }
 
     public void validateUser(User user) throws ValidationException {
-        validationErrorConsumer.accept(user.validateEmail());
-        validationErrorConsumer.accept(user.validateLogin());
-        validationErrorConsumer.accept(user.validateBirthday());
+        handleValidationError(user.validateEmail());
+        handleValidationError(user.validateLogin());
+        handleValidationError(user.validateBirthday());
     }
 
 }
