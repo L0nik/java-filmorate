@@ -1,7 +1,9 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -12,11 +14,13 @@ import java.util.Optional;
  * Film.
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class Film extends BaseModel {
-    String name;
-    String description;
-    LocalDate releaseDate;
-    Integer duration;
+    private String name;
+    private String description;
+    private LocalDate releaseDate;
+    private Integer duration;
 
     @Getter
     private static final int maxDescriptionLength = 200;

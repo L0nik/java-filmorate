@@ -1,16 +1,20 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class User extends BaseModel {
-    String email;
-    String login;
-    String name;
-    LocalDate birthday;
+    private String email;
+    private String login;
+    private String name;
+    private LocalDate birthday;
 
     public Optional<String> validateEmail() {
         if (email == null || email.isBlank() || !email.contains("@")) {

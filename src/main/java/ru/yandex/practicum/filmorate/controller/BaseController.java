@@ -18,7 +18,7 @@ public abstract class BaseController {
         });
     }
 
-    protected static long getNextId(Map<Long, ? extends BaseModel> data) {
+    protected long getNextId(Map<Long, ? extends BaseModel> data) {
         long currentMaxId = data.keySet()
                 .stream()
                 .mapToLong(id -> id)

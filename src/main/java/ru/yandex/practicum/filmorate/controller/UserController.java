@@ -85,7 +85,7 @@ public class UserController extends BaseController {
         return users.values();
     }
 
-    public void validateUser(User user) throws ValidationException {
+    private void validateUser(User user) throws ValidationException {
         handleValidationError(user.validateEmail());
         handleValidationError(user.validateLogin());
         handleValidationError(user.validateBirthday());
