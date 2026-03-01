@@ -1,0 +1,22 @@
+<configuration>
+
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>logs/app.log</file>
+
+        <append>false</append>
+
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="org.springframework" level="OFF"/>
+    <logger name="org.springframework.web.servlet.DispatcherServlet" level="OFF"/>
+    <logger name="org.apache.catalina" level="OFF"/>
+    <logger name="org.apache.coyote" level="OFF"/>
+
+    <root level="INFO">
+        <appender-ref ref="FILE"/>
+    </root>
+
+</configuration>
