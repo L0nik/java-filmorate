@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -28,33 +29,29 @@ public class Film extends BaseModel {
     @Getter
     private static final LocalDate minReleaseDate = LocalDate.of(1895, 12, 28);
 
-    public Optional<String> validateName() {
+    public void validateName() throws ValidationException {
         if (name == null || name.isBlank()) {
-            return Optional.of("Название не может быть пустым");
+            throw new ValidationException("Название не может быть пустым");
         }
-        return Optional.empty();
     }
 
-    public Optional<String> validateDescription() {
+    public void validateDescription() throws ValidationException {
         if (description != null && description.length() > maxDescriptionLength) {
-            return Optional.of(String.format("Максимальная длина описания — %d символов", maxDescriptionLength));
+            throw new ValidationException(String.format("Максимальная длина описания — %d символов", maxDescriptionLength));
         }
-        return Optional.empty();
     }
 
-    public Optional<String> validateReleaseDate() {
+    public void validateReleaseDate() throws ValidationException {
         if (releaseDate != null && releaseDate.isBefore(minReleaseDate)) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
             String message = String.format("Дата релиза — не раньше %s", minReleaseDate.format(formatter));
-            return Optional.of(message);
+            throw new ValidationException(message);
         }
-        return Optional.empty();
     }
 
-    public Optional<String> validateDuration() {
+    public void validateDuration() throws ValidationException {
         if (duration != null && duration <= 0) {
-            return Optional.of("Продолжительность фильма должна быть положительным числом");
+            throw new ValidationException("Продолжительность фильма должна быть положительным числом");
         }
-        return Optional.empty();
     }
 }

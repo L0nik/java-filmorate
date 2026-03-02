@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.model;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -16,24 +17,21 @@ public class User extends BaseModel {
     private String name;
     private LocalDate birthday;
 
-    public Optional<String> validateEmail() {
+    public void validateEmail() throws ValidationException {
         if (email == null || email.isBlank() || !email.contains("@")) {
-            return Optional.of("Электронная почта не может быть пустой и должна содержать символ '@'");
+            throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ '@'");
         }
-        return Optional.empty();
     }
 
-    public Optional<String> validateLogin() {
+    public void validateLogin() throws ValidationException {
         if (login == null || login.isBlank() || login.contains(" ")) {
-            return Optional.of("Логин не может быть пустым и содержать пробелы");
+            throw new ValidationException("Логин не может быть пустым и содержать пробелы");
         }
-        return Optional.empty();
     }
 
-    public Optional<String> validateBirthday() {
+    public void validateBirthday() throws ValidationException {
         if (birthday.isAfter(LocalDate.now())) {
-            return Optional.of("Дата рождения не может быть в будущем");
+            throw new ValidationException("Дата рождения не может быть в будущем");
         }
-        return Optional.empty();
     }
 }

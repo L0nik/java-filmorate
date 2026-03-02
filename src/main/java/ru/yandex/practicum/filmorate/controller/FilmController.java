@@ -6,84 +6,36 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/films")
-public class FilmController extends BaseController {
+public class FilmController {
     private static final Logger log = LoggerFactory.getLogger(FilmController.class);
-    private final Map<Long, Film> films = new HashMap<>();
+    private final FilmStorage filmStorage;
 
-    @Override
-    protected Logger getLogger() {
-        return log;
+    public FilmController(FilmStorage filmStorage) {
+        this.filmStorage = filmStorage;
     }
 
     @PostMapping
     public Film addFilm(@RequestBody Film newFilm) throws ValidationException {
         log.info("Получен запрос на добавление фильма: {}", newFilm);
-        validateFilm(newFilm);
-        newFilm.setId(getNextId(films));
-        films.put(newFilm.getId(), newFilm);
-        log.info("Добавлен новый фильм: {}", newFilm);
-        return newFilm;
+        return filmStorage.addFilm(newFilm);
     }
 
     @PutMapping
     public Film updateFilm(@RequestBody Film newFilm) throws ValidationException, NotFoundException {
 
         log.info("Получен запрос на обновление фильма: {}", newFilm);
-
-        if (newFilm.getId() == null) {
-            String errorMessage = "Не указан id";
-            log.error(errorMessage);
-            throw new ValidationException(errorMessage);
-        }
-
-        Film film = films.get(newFilm.getId());
-        if (film == null) {
-            String errorMessage = String.format("Фильм с id '%d' не найден", newFilm.getId());
-            log.error(errorMessage);
-            throw new NotFoundException(errorMessage);
-        }
-        log.info("Начало обновления фильма: {}", film);
-        if (newFilm.getName() != null) {
-            handleValidationError(newFilm.validateName());
-            film.setName(newFilm.getName());
-        }
-
-        if (newFilm.getDescription() != null) {
-            handleValidationError(newFilm.validateDescription());
-            film.setDescription(newFilm.getDescription());
-        }
-
-        if (newFilm.getReleaseDate() != null) {
-            handleValidationError(newFilm.validateReleaseDate());
-            film.setReleaseDate(newFilm.getReleaseDate());
-        }
-
-        if (newFilm.getDuration() != null) {
-            handleValidationError(newFilm.validateDuration());
-            film.setDuration(newFilm.getDuration());
-        }
-        log.info("Фильм успешно обновлен: {}", film);
-
-        return film;
+        return filmStorage.updateFilm(newFilm);
     }
 
     @GetMapping
     public Collection<Film> getAllFilms() {
-        return films.values();
-    }
-
-    private void validateFilm(Film film) throws ValidationException {
-        handleValidationError(film.validateName());
-        handleValidationError(film.validateDescription());
-        handleValidationError(film.validateReleaseDate());
-        handleValidationError(film.validateDuration());
+        return filmStorage.getAllFilms();
     }
 
 }
