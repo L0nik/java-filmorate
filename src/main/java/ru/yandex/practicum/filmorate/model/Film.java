@@ -8,7 +8,9 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 
 /**
@@ -22,6 +24,7 @@ public class Film extends BaseModel {
     private String description;
     private LocalDate releaseDate;
     private Integer duration;
+    private final Set<Long> likes = new HashSet<>();
 
     @Getter
     private static final int maxDescriptionLength = 200;
@@ -53,5 +56,13 @@ public class Film extends BaseModel {
         if (duration != null && duration <= 0) {
             throw new ValidationException("Продолжительность фильма должна быть положительным числом");
         }
+    }
+
+    public void addLike(long userId) {
+        likes.add(userId);
+    }
+
+    public void removeLike(long userId) {
+        likes.remove(userId);
     }
 }

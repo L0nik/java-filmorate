@@ -10,12 +10,24 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
 
     private static final Logger log = LoggerFactory.getLogger(InMemoryFilmStorage.class);
     private final Map<Long, Film> films = new HashMap<>();
+
+    @Override
+    public Film getFilmById(long id) throws NotFoundException {
+        Film film = films.get(id);
+        if (film == null) {
+            String errorMessage = String.format("Фильм с id '%d' не найден", id);
+            log.error(errorMessage);
+            throw new NotFoundException(errorMessage);
+        }
+        return film;
+    }
 
     @Override
     public Collection<Film> getAllFilms() {

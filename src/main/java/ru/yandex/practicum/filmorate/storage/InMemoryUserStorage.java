@@ -5,17 +5,30 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 public class InMemoryUserStorage implements UserStorage {
 
     private static final Logger log = LoggerFactory.getLogger(InMemoryUserStorage.class);
     private final Map<Long, User> users = new HashMap<>();
+
+    @Override
+    public User getUserById(long id) throws NotFoundException {
+        User user = users.get(id);
+        if (user == null) {
+            String errorMessage = String.format("Пользователь с id '%d' не найден", id);
+            log.error(errorMessage);
+            throw new NotFoundException(errorMessage);
+        }
+        return user;
+    }
 
     @Override
     public Collection<User> getAllUsers() {

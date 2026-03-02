@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.Collection;
 
@@ -14,28 +14,29 @@ import java.util.Collection;
 @RequestMapping("/films")
 public class FilmController {
     private static final Logger log = LoggerFactory.getLogger(FilmController.class);
-    private final FilmStorage filmStorage;
+    private final FilmService filmService;
 
-    public FilmController(FilmStorage filmStorage) {
-        this.filmStorage = filmStorage;
+    public FilmController(FilmService filmService) {
+        this.filmService = filmService;
     }
 
     @PostMapping
     public Film addFilm(@RequestBody Film newFilm) throws ValidationException {
         log.info("Получен запрос на добавление фильма: {}", newFilm);
-        return filmStorage.addFilm(newFilm);
+        return filmService.addFilm(newFilm);
     }
 
     @PutMapping
     public Film updateFilm(@RequestBody Film newFilm) throws ValidationException, NotFoundException {
 
         log.info("Получен запрос на обновление фильма: {}", newFilm);
-        return filmStorage.updateFilm(newFilm);
+        return filmService.updateFilm(newFilm);
     }
 
     @GetMapping
     public Collection<Film> getAllFilms() {
-        return filmStorage.getAllFilms();
+        log.info("Получен запрос на получение всех фильмов");
+        return filmService.getAllFilms();
     }
 
 }
