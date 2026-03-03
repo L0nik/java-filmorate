@@ -5,13 +5,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @Component
 public class InMemoryUserStorage implements UserStorage {
@@ -37,6 +35,7 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User addUser(User newUser) throws ValidationException {
+        log.info("Начало добавления пользователя {}", newUser);
         validateUser(newUser);
         newUser.setId(getNextId());
         if (newUser.getName() == null || newUser.getName().isBlank()) {
@@ -90,9 +89,11 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     private void validateUser(User user) throws ValidationException {
+        log.info("Начало валидации пользователя {}", user);
         user.validateEmail();
         user.validateLogin();
         user.validateBirthday();
+        log.info("Валидация пользователя завершилась успешно {}", user);
     }
 
     protected long getNextId() {

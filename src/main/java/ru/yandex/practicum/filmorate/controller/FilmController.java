@@ -28,7 +28,6 @@ public class FilmController {
 
     @PutMapping
     public Film updateFilm(@RequestBody Film newFilm) throws ValidationException, NotFoundException {
-
         log.info("Получен запрос на обновление фильма: {}", newFilm);
         return filmService.updateFilm(newFilm);
     }
@@ -39,4 +38,36 @@ public class FilmController {
         return filmService.getAllFilms();
     }
 
+    @GetMapping("/{id}")
+    public Film getFilmById(@PathVariable long id) throws NotFoundException {
+        log.info("Получен запрос на получение фильма по id {}", id);
+        return filmService.getFilmById(id);
+    }
+
+    @PutMapping("/{id}/like/{userId}")
+    public void putLike(
+            @PathVariable long id,
+            @PathVariable long userId
+    ) throws NotFoundException {
+        log.info("Получен запрос на добавление лайка фильму {} пользователем {}", id, userId);
+        filmService.putLike(id, userId);
+    }
+
+    @DeleteMapping("/{id}/like/{userId}")
+    public void removeLike(
+            @PathVariable long id,
+            @PathVariable long userId
+    ) throws NotFoundException {
+        log.info("Получен запрос на удаление лайка фильму {} пользователем {}", id, userId);
+        filmService.removeLike(id, userId);
+    }
+
+    @GetMapping("/popular")
+    public Collection<Film> getMostPopularFilms(@RequestParam(required = false) Integer count) {
+        log.info("Получен запрос на получение самых популярных фильмов (count = {})", count);
+        if (count == null) {
+            count = 10;
+        }
+        return filmService.getTopFilmsByLikes(count);
+    }
 }

@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 
@@ -58,7 +57,7 @@ public class Film extends BaseModel {
         }
     }
 
-    public void addLike(long userId) {
+    public void putLike(long userId) {
         likes.add(userId);
     }
 

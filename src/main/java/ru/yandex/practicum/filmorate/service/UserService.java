@@ -21,6 +21,10 @@ public class UserService {
         this.userStorage = userStorage;
     }
 
+    public User getUserById(long id) throws NotFoundException {
+        return userStorage.getUserById(id);
+    }
+
     public Collection<User> getAllUsers() {
         return userStorage.getAllUsers();
     }
@@ -29,7 +33,7 @@ public class UserService {
         return userStorage.addUser(newUser);
     }
 
-    public User updateUser(User newUser)  throws ValidationException, NotFoundException {
+    public User updateUser(User newUser) throws ValidationException, NotFoundException {
         return userStorage.updateUser(newUser);
     }
 
@@ -50,7 +54,14 @@ public class UserService {
         log.info("Пользователь {} удалил из друзей пользователя {}", userId, friendId);
     }
 
-    public Collection<User> getListOfCommonFriends(long userId1, long userId2) throws NotFoundException {
+    public Collection<User> getFriendsOfUser(long userId) throws NotFoundException {
+        User user = userStorage.getUserById(userId);
+        return user.getFriends().stream()
+                .map(userStorage::getUserById)
+                .toList();
+    }
+
+    public Collection<User> getCommonFriends(long userId1, long userId2) throws NotFoundException {
         User user1 = userStorage.getUserById(userId1);
         User user2 = userStorage.getUserById(userId2);
         HashSet<Long> commonFriends = new HashSet<>(user1.getFriends());

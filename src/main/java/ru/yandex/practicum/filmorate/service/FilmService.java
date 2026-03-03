@@ -8,12 +8,10 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Optional;
 
 @Service
 public class FilmService {
@@ -25,6 +23,10 @@ public class FilmService {
     public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
+    }
+
+    public Film getFilmById(long id) throws NotFoundException {
+        return filmStorage.getFilmById(id);
     }
 
     public Collection<Film> getAllFilms() {
@@ -39,10 +41,10 @@ public class FilmService {
         return filmStorage.updateFilm(newFilm);
     }
 
-    public void addLike(long filmId, long userId) throws NotFoundException {
+    public void putLike(long filmId, long userId) throws NotFoundException {
         Film film = filmStorage.getFilmById(filmId);
         User user = userStorage.getUserById(userId);
-        film.addLike(user.getId());
+        film.putLike(user.getId());
         log.info("Фильму {} добавлен лайк от пользователя {}", filmId, userId);
     }
 
@@ -53,11 +55,7 @@ public class FilmService {
         log.info("Пользователь {} удалил лайк фильма {}", userId, filmId);
     }
 
-    public Collection<Film> getTopFilmsByLikes() {
-        return getTopFilmsByLikes(10);
-    }
-
-    public Collection<Film> getTopFilmsByLikes(long count) {
+    public Collection<Film> getTopFilmsByLikes(int count) {
         return filmStorage.getAllFilms().stream()
                 .sorted(Comparator.comparingInt(film -> film.getLikes().size()))
                 .limit(count)
