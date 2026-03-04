@@ -42,7 +42,7 @@ public class UserService {
         User user = userStorage.getUserById(userId);
         User friend = userStorage.getUserById(friendId);
         user.addFriend(friendId);
-        friend.addFriend(friendId);
+        friend.addFriend(userId);
         log.info("Пользователь {} добавил в друзья пользователя {}", userId, friendId);
     }
 
