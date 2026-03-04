@@ -34,7 +34,6 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film addFilm(Film newFilm) {
-        validateFilm(newFilm);
         newFilm.setId(getNextId());
         films.put(newFilm.getId(), newFilm);
         log.info("Добавлен новый фильм: {}", newFilm);
@@ -42,50 +41,8 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film updateFilm(Film newFilm) {
-
-        if (newFilm.getId() == null) {
-            String errorMessage = "Не указан id";
-            log.error(errorMessage);
-            throw new ValidationException(errorMessage);
-        }
-
-        Film film = films.get(newFilm.getId());
-        if (film == null) {
-            String errorMessage = String.format("Фильм с id '%d' не найден", newFilm.getId());
-            log.error(errorMessage);
-            throw new NotFoundException(errorMessage);
-        }
-        log.info("Начало обновления фильма: {}", film);
-        if (newFilm.getName() != null) {
-            newFilm.validateName();
-            film.setName(newFilm.getName());
-        }
-
-        if (newFilm.getDescription() != null) {
-            newFilm.validateDescription();
-            film.setDescription(newFilm.getDescription());
-        }
-
-        if (newFilm.getReleaseDate() != null) {
-            newFilm.validateReleaseDate();
-            film.setReleaseDate(newFilm.getReleaseDate());
-        }
-
-        if (newFilm.getDuration() != null) {
-            newFilm.validateDuration();
-            film.setDuration(newFilm.getDuration());
-        }
-        log.info("Фильм успешно обновлен: {}", film);
-
-        return film;
-    }
-
-    private void validateFilm(Film film) {
-        film.validateName();
-        film.validateDescription();
-        film.validateReleaseDate();
-        film.validateDuration();
+    public void updateFilm(Film newFilm) {
+        films.put(newFilm.getId(), newFilm);
     }
 
     protected long getNextId() {

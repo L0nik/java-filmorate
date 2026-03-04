@@ -10,7 +10,7 @@ public interface FilmStorage {
 
     Film addFilm(Film newFilm);
 
-    Film updateFilm(Film newFilm);
+    void updateFilm(Film newFilm);
 
     Collection<Film> getAllFilms();
 }

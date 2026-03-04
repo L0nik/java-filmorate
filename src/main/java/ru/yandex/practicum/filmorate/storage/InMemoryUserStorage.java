@@ -35,64 +35,15 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public User addUser(User newUser) {
         log.info("Начало добавления пользователя {}", newUser);
-        validateUser(newUser);
         newUser.setId(getNextId());
-        if (newUser.getName() == null || newUser.getName().isBlank()) {
-            newUser.setName(newUser.getLogin());
-        }
         users.put(newUser.getId(), newUser);
         log.info("Добавлен новый пользователь: {}", newUser);
         return newUser;
     }
 
     @Override
-    public User updateUser(User newUser) {
-
-        if (newUser.getId() == null) {
-            String errorMessage = "Не указан id";
-            log.error(errorMessage);
-            throw new ValidationException(errorMessage);
-        }
-
-        User user = users.get(newUser.getId());
-        if (user == null) {
-            String errorMessage = String.format("Пользователь с id '%d' не найден", newUser.getId());
-            log.error(errorMessage);
-            throw new NotFoundException(errorMessage);
-        }
-
-        log.info("Начало обновления пользователя: {}", user);
-        if (newUser.getEmail() != null) {
-            newUser.validateEmail();
-            user.setEmail(newUser.getEmail());
-        }
-
-        if (newUser.getLogin() != null) {
-            newUser.validateLogin();
-            user.setLogin(newUser.getLogin());
-        }
-
-        if (newUser.getName() != null && !newUser.getName().isBlank()) {
-            user.setName(newUser.getName());
-        } else {
-            user.setName(user.getLogin());
-        }
-
-        if (newUser.getBirthday() != null) {
-            newUser.validateBirthday();
-            user.setBirthday(newUser.getBirthday());
-        }
-        log.info("Пользователь успешно обновлен: {}", user);
-
-        return user;
-    }
-
-    private void validateUser(User user) {
-        log.info("Начало валидации пользователя {}", user);
-        user.validateEmail();
-        user.validateLogin();
-        user.validateBirthday();
-        log.info("Валидация пользователя завершилась успешно {}", user);
+    public void updateUser(User newUser) {
+        users.put(newUser.getId(), newUser);
     }
 
     protected long getNextId() {

@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -27,11 +28,50 @@ public class UserService {
     }
 
     public User addUser(User newUser) {
+        validateUser(newUser);
+        if (newUser.getName() == null || newUser.getName().isBlank()) {
+            newUser.setName(newUser.getLogin());
+        }
         return userStorage.addUser(newUser);
     }
 
     public User updateUser(User newUser) {
-        return userStorage.updateUser(newUser);
+
+        if (newUser.getId() == null) {
+            String errorMessage = "Не указан id";
+            log.error(errorMessage);
+            throw new ValidationException(errorMessage);
+        }
+
+        User user = userStorage.getUserById(newUser.getId());
+
+        log.info("Начало обновления пользователя: {}", user);
+        if (newUser.getEmail() != null) {
+            newUser.validateEmail();
+            user.setEmail(newUser.getEmail());
+        }
+
+        if (newUser.getLogin() != null) {
+            newUser.validateLogin();
+            user.setLogin(newUser.getLogin());
+        }
+
+        if (newUser.getName() != null && !newUser.getName().isBlank()) {
+            user.setName(newUser.getName());
+        } else {
+            user.setName(user.getLogin());
+        }
+
+        if (newUser.getBirthday() != null) {
+            newUser.validateBirthday();
+            user.setBirthday(newUser.getBirthday());
+        }
+
+        userStorage.updateUser(user);
+
+        log.info("Пользователь успешно обновлен: {}", user);
+
+        return user;
     }
 
 
@@ -66,5 +106,13 @@ public class UserService {
         return commonFriends.stream()
                 .map(userStorage::getUserById)
                 .toList();
+    }
+
+    private void validateUser(User user) {
+        log.info("Начало валидации пользователя {}", user);
+        user.validateEmail();
+        user.validateLogin();
+        user.validateBirthday();
+        log.info("Валидация пользователя завершилась успешно {}", user);
     }
 }

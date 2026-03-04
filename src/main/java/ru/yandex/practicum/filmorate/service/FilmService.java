@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
@@ -30,11 +31,46 @@ public class FilmService {
     }
 
     public Film addFilm(Film newFilm) {
+        validateFilm(newFilm);
         return filmStorage.addFilm(newFilm);
     }
 
     public Film updateFilm(Film newFilm) {
-        return filmStorage.updateFilm(newFilm);
+
+        if (newFilm.getId() == null) {
+            String errorMessage = "Не указан id";
+            log.error(errorMessage);
+            throw new ValidationException(errorMessage);
+        }
+
+        Film film = filmStorage.getFilmById(newFilm.getId());
+
+        log.info("Начало обновления фильма: {}", film);
+        if (newFilm.getName() != null) {
+            newFilm.validateName();
+            film.setName(newFilm.getName());
+        }
+
+        if (newFilm.getDescription() != null) {
+            newFilm.validateDescription();
+            film.setDescription(newFilm.getDescription());
+        }
+
+        if (newFilm.getReleaseDate() != null) {
+            newFilm.validateReleaseDate();
+            film.setReleaseDate(newFilm.getReleaseDate());
+        }
+
+        if (newFilm.getDuration() != null) {
+            newFilm.validateDuration();
+            film.setDuration(newFilm.getDuration());
+        }
+
+        filmStorage.updateFilm(film);
+
+        log.info("Фильм успешно обновлен: {}", film);
+
+        return film;
     }
 
     public void putLike(long filmId, long userId) {
@@ -56,5 +92,14 @@ public class FilmService {
                 .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
                 .limit(count)
                 .toList();
+    }
+
+    private void validateFilm(Film film) {
+        log.info("Начало валидации фильма {}", film);
+        film.validateName();
+        film.validateDescription();
+        film.validateReleaseDate();
+        film.validateDuration();
+        log.info("Валидация фильма завершилась успешно {}", film);
     }
 }
