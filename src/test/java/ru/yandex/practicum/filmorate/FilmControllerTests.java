@@ -65,8 +65,8 @@ public class FilmControllerTests {
     }
 
     @Test
-    @DisplayName("POST /films - пустое название -> 500")
-    void postShouldReturn500WhenNameIsBlank() throws Exception {
+    @DisplayName("POST /films - пустое название -> 400")
+    void postShouldReturn400WhenNameIsBlank() throws Exception {
 
         Film film = createValidFilm();
         film.setName("");
@@ -75,12 +75,12 @@ public class FilmControllerTests {
 
         HttpResponse<String> response = sendPost(json);
 
-        assertEquals(500, response.statusCode());
+        assertEquals(400, response.statusCode());
     }
 
     @Test
-    @DisplayName("POST /films - отсутствует название -> 500")
-    void postShouldReturn500WhenNameIsNull() throws Exception {
+    @DisplayName("POST /films - отсутствует название -> 400")
+    void postShouldReturn400WhenNameIsNull() throws Exception {
 
         Film film = createValidFilm();
         film.setName(null);
@@ -89,7 +89,7 @@ public class FilmControllerTests {
 
         HttpResponse<String> response = sendPost(json);
 
-        assertEquals(500, response.statusCode());
+        assertEquals(400, response.statusCode());
     }
 
     @Test
@@ -110,8 +110,8 @@ public class FilmControllerTests {
     }
 
     @Test
-    @DisplayName("POST /films - длина описания больше максимальной -> 500")
-    void postShouldReturn500WhenDescriptionTooLong() throws Exception {
+    @DisplayName("POST /films - длина описания больше максимальной -> 400")
+    void postShouldReturn400WhenDescriptionTooLong() throws Exception {
 
         Film film = createValidFilm();
         film.setDescription("a".repeat(maxDescriptionLength + 1));
@@ -120,7 +120,7 @@ public class FilmControllerTests {
 
         HttpResponse<String> response = sendPost(json);
 
-        assertEquals(500, response.statusCode());
+        assertEquals(400, response.statusCode());
     }
 
     @Test
@@ -141,8 +141,8 @@ public class FilmControllerTests {
     }
 
     @Test
-    @DisplayName("POST /films - releaseDate раньше минимальной даты релиза -> 500")
-    void postShouldReturn500WhenReleaseDateTooEarly() throws Exception {
+    @DisplayName("POST /films - releaseDate раньше минимальной даты релиза -> 400")
+    void postShouldReturn400WhenReleaseDateTooEarly() throws Exception {
 
         Film film = createValidFilm();
         film.setReleaseDate(minReleaseDate.minusDays(1));
@@ -151,12 +151,12 @@ public class FilmControllerTests {
 
         HttpResponse<String> response = sendPost(json);
 
-        assertEquals(500, response.statusCode());
+        assertEquals(400, response.statusCode());
     }
 
     @Test
-    @DisplayName("POST /films - продолжительность фильма < 0 -> 500")
-    void postShouldReturn500WhenDurationNegative() throws Exception {
+    @DisplayName("POST /films - продолжительность фильма < 0 -> 400")
+    void postShouldReturn400WhenDurationNegative() throws Exception {
 
         Film film = createValidFilm();
         film.setDuration(-10);
@@ -165,12 +165,12 @@ public class FilmControllerTests {
 
         HttpResponse<String> response = sendPost(json);
 
-        assertEquals(500, response.statusCode());
+        assertEquals(400, response.statusCode());
     }
 
     @Test
-    @DisplayName("POST /films - продолжительность фильма = 0 -> 500")
-    void postShouldReturn500WhenDurationIs0() throws Exception {
+    @DisplayName("POST /films - продолжительность фильма = 0 -> 400")
+    void postShouldReturn400WhenDurationIs0() throws Exception {
 
         Film film = createValidFilm();
         film.setDuration(0);
@@ -179,14 +179,14 @@ public class FilmControllerTests {
 
         HttpResponse<String> response = sendPost(json);
 
-        assertEquals(500, response.statusCode());
+        assertEquals(400, response.statusCode());
     }
 
     @Test
-    @DisplayName("POST /films - пустое тело -> 400")
-    void postShouldReturn400WhenEmptyBody() throws IOException, InterruptedException {
+    @DisplayName("POST /films - пустое тело -> 500")
+    void postShouldReturn500WhenEmptyBody() throws IOException, InterruptedException {
         HttpResponse<String> response = sendPost("");
-        assertEquals(400, response.statusCode());
+        assertEquals(500, response.statusCode());
     }
 
     @Test
@@ -212,56 +212,63 @@ public class FilmControllerTests {
     }
 
     @Test
-    @DisplayName("PUT /films - отсутствует id -> 500")
-    void putShouldReturn500WhenIdMissing() throws Exception {
+    @DisplayName("PUT /films - отсутствует id -> 400")
+    void putShouldReturn400WhenIdMissing() throws Exception {
 
         Film film = createValidFilm();
+        postValidFilm(film);
+
         film.setId(null);
 
         String json = gson.toJson(film);
         HttpResponse<String> response = sendPut(json);
 
-        assertEquals(500, response.statusCode());
+        assertEquals(400, response.statusCode());
     }
 
     @Test
-    @DisplayName("PUT /films - не существующий id -> 500")
-    void putShouldReturn500WhenIdNotExists() throws Exception {
+    @DisplayName("PUT /films - не существующий id -> 404")
+    void putShouldReturn404WhenIdNotExists() throws Exception {
 
         Film film = createValidFilm();
+        postValidFilm(film);
+
         film.setId(9999L);
 
         String json = gson.toJson(film);
         HttpResponse<String> response = sendPut(json);
 
-        assertEquals(500, response.statusCode());
+        assertEquals(404, response.statusCode());
     }
 
     @Test
-    @DisplayName("PUT /films - пустое название -> 500")
-    void putShouldReturn500WhenNameIsBlank() throws Exception {
+    @DisplayName("PUT /films - пустое название -> 400")
+    void putShouldReturn400WhenNameIsBlank() throws Exception {
 
         Film film = createValidFilm();
+        postValidFilm(film);
+
         film.setName("");
 
         String json = gson.toJson(film);
         HttpResponse<String> response = sendPut(json);
 
-        assertEquals(500, response.statusCode());
+        assertEquals(400, response.statusCode());
     }
 
     @Test
-    @DisplayName("PUT /films - длина описания больше максимальной -> 500")
-    void putShouldReturn500WhenDescriptionTooLong() throws Exception {
+    @DisplayName("PUT /films - длина описания больше максимальной -> 400")
+    void putShouldReturn400WhenDescriptionTooLong() throws Exception {
 
         Film film = createValidFilm();
+        postValidFilm(film);
 
         film.setDescription("a".repeat(maxDescriptionLength + 1));
 
         String json = gson.toJson(film);
         HttpResponse<String> response = sendPut(json);
 
-        assertEquals(500, response.statusCode());
+        assertEquals(400, response.statusCode());
     }
 
     @Test
@@ -312,49 +319,55 @@ public class FilmControllerTests {
     }
 
     @Test
-    @DisplayName("PUT /films - releaseDate раньше минимальной даты релиза -> 500")
-    void putShouldReturn500WhenReleaseDateTooEarly() throws Exception {
+    @DisplayName("PUT /films - releaseDate раньше минимальной даты релиза -> 400")
+    void putShouldReturn400WhenReleaseDateTooEarly() throws Exception {
 
         Film film = createValidFilm();
+        postValidFilm(film);
+
         film.setReleaseDate(minReleaseDate.minusDays(1));
 
         String json = gson.toJson(film);
         HttpResponse<String> response = sendPut(json);
 
-        assertEquals(500, response.statusCode());
-    }
-
-    @Test
-    @DisplayName("PUT /films - продолжительность < 0 -> 500")
-    void putShouldReturn500WhenDurationNegative() throws Exception {
-
-        Film film = createValidFilm();
-        film.setDuration(-100);
-
-        String json = gson.toJson(film);
-        HttpResponse<String> response = sendPut(json);
-
-        assertEquals(500, response.statusCode());
-    }
-
-    @Test
-    @DisplayName("PUT /films - продолжительность = 0 -> 500")
-    void putShouldReturn500WhenDurationIs0() throws Exception {
-
-        Film film = createValidFilm();
-        film.setDuration(-100);
-
-        String json = gson.toJson(film);
-        HttpResponse<String> response = sendPut(json);
-
-        assertEquals(500, response.statusCode());
-    }
-
-    @Test
-    @DisplayName("PUT /films - пустое тело -> 400")
-    void putShouldReturn400WhenEmptyBody() throws IOException, InterruptedException {
-        HttpResponse<String> response = sendPut("");
         assertEquals(400, response.statusCode());
+    }
+
+    @Test
+    @DisplayName("PUT /films - продолжительность < 0 -> 400")
+    void putShouldReturn400WhenDurationNegative() throws Exception {
+
+        Film film = createValidFilm();
+        postValidFilm(film);
+
+        film.setDuration(-100);
+
+        String json = gson.toJson(film);
+        HttpResponse<String> response = sendPut(json);
+
+        assertEquals(400, response.statusCode());
+    }
+
+    @Test
+    @DisplayName("PUT /films - продолжительность = 0 -> 400")
+    void putShouldReturn400WhenDurationIs0() throws Exception {
+
+        Film film = createValidFilm();
+        postValidFilm(film);
+
+        film.setDuration(-100);
+
+        String json = gson.toJson(film);
+        HttpResponse<String> response = sendPut(json);
+
+        assertEquals(400, response.statusCode());
+    }
+
+    @Test
+    @DisplayName("PUT /films - пустое тело -> 500")
+    void putShouldReturn500WhenEmptyBody() throws IOException, InterruptedException {
+        HttpResponse<String> response = sendPut("");
+        assertEquals(500, response.statusCode());
     }
 
     private Film createValidFilm() {
@@ -387,5 +400,11 @@ public class FilmControllerTests {
                 .build();
 
         return client.send(request, HttpResponse.BodyHandlers.ofString());
+    }
+
+    private void postValidFilm(Film film) throws IOException, InterruptedException {
+        HttpResponse<String> postResponse = sendPost(gson.toJson(film));
+        assertEquals(200, postResponse.statusCode());
+        Film createdFilm = gson.fromJson(postResponse.body(), Film.class);
     }
 }
