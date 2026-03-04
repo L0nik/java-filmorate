@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -12,13 +13,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
+@Slf4j
 public class InMemoryUserStorage implements UserStorage {
 
-    private static final Logger log = LoggerFactory.getLogger(InMemoryUserStorage.class);
     private final Map<Long, User> users = new HashMap<>();
 
     @Override
-    public User getUserById(long id) throws NotFoundException {
+    public User getUserById(long id) {
         User user = users.get(id);
         if (user == null) {
             String errorMessage = String.format("Пользователь с id '%d' не найден", id);
@@ -34,7 +35,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User addUser(User newUser) throws ValidationException {
+    public User addUser(User newUser) {
         log.info("Начало добавления пользователя {}", newUser);
         validateUser(newUser);
         newUser.setId(getNextId());
@@ -47,7 +48,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User updateUser(User newUser) throws ValidationException, NotFoundException {
+    public User updateUser(User newUser) {
 
         if (newUser.getId() == null) {
             String errorMessage = "Не указан id";
@@ -88,7 +89,7 @@ public class InMemoryUserStorage implements UserStorage {
         return user;
     }
 
-    private void validateUser(User user) throws ValidationException {
+    private void validateUser(User user) {
         log.info("Начало валидации пользователя {}", user);
         user.validateEmail();
         user.validateLogin();

@@ -31,19 +31,19 @@ public class Film extends BaseModel {
     @Getter
     private static final LocalDate minReleaseDate = LocalDate.of(1895, 12, 28);
 
-    public void validateName() throws ValidationException {
+    public void validateName()  {
         if (name == null || name.isBlank()) {
             throw new ValidationException("Название не может быть пустым");
         }
     }
 
-    public void validateDescription() throws ValidationException {
+    public void validateDescription() {
         if (description != null && description.length() > maxDescriptionLength) {
             throw new ValidationException(String.format("Максимальная длина описания — %d символов", maxDescriptionLength));
         }
     }
 
-    public void validateReleaseDate() throws ValidationException {
+    public void validateReleaseDate() {
         if (releaseDate != null && releaseDate.isBefore(minReleaseDate)) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
             String message = String.format("Дата релиза — не раньше %s", minReleaseDate.format(formatter));
@@ -51,7 +51,7 @@ public class Film extends BaseModel {
         }
     }
 
-    public void validateDuration() throws ValidationException {
+    public void validateDuration() {
         if (duration != null && duration <= 0) {
             throw new ValidationException("Продолжительность фильма должна быть положительным числом");
         }

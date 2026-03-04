@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -12,13 +13,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
+@Slf4j
 public class InMemoryFilmStorage implements FilmStorage {
 
-    private static final Logger log = LoggerFactory.getLogger(InMemoryFilmStorage.class);
     private final Map<Long, Film> films = new HashMap<>();
 
     @Override
-    public Film getFilmById(long id) throws NotFoundException {
+    public Film getFilmById(long id) {
         Film film = films.get(id);
         if (film == null) {
             String errorMessage = String.format("Фильм с id '%d' не найден", id);
@@ -34,7 +35,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film addFilm(Film newFilm) throws ValidationException {
+    public Film addFilm(Film newFilm) {
         validateFilm(newFilm);
         newFilm.setId(getNextId());
         films.put(newFilm.getId(), newFilm);
@@ -43,7 +44,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film updateFilm(Film newFilm) throws ValidationException, NotFoundException {
+    public Film updateFilm(Film newFilm) {
 
         if (newFilm.getId() == null) {
             String errorMessage = "Не указан id";
@@ -82,7 +83,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         return film;
     }
 
-    private void validateFilm(Film film) throws ValidationException {
+    private void validateFilm(Film film) {
         film.validateName();
         film.validateDescription();
         film.validateReleaseDate();

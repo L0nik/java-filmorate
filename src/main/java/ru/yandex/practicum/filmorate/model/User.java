@@ -19,19 +19,19 @@ public class User extends BaseModel {
     private LocalDate birthday;
     private final Set<Long> friends = new HashSet<>();
 
-    public void validateEmail() throws ValidationException {
+    public void validateEmail() {
         if (email == null || email.isBlank() || !email.contains("@")) {
             throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ '@'");
         }
     }
 
-    public void validateLogin() throws ValidationException {
+    public void validateLogin() {
         if (login == null || login.isBlank() || login.contains(" ")) {
             throw new ValidationException("Логин не может быть пустым и содержать пробелы");
         }
     }
 
-    public void validateBirthday() throws ValidationException {
+    public void validateBirthday() {
         if (birthday.isAfter(LocalDate.now())) {
             throw new ValidationException("Дата рождения не может быть в будущем");
         }

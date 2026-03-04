@@ -1,10 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
@@ -13,9 +10,9 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 import java.util.Collection;
 
 @Service
+@Slf4j
 public class FilmService {
 
-    private static final Logger log = LoggerFactory.getLogger(FilmService.class);
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
 
@@ -24,7 +21,7 @@ public class FilmService {
         this.userStorage = userStorage;
     }
 
-    public Film getFilmById(long id) throws NotFoundException {
+    public Film getFilmById(long id) {
         return filmStorage.getFilmById(id);
     }
 
@@ -32,22 +29,22 @@ public class FilmService {
         return filmStorage.getAllFilms();
     }
 
-    public Film addFilm(Film newFilm) throws ValidationException {
+    public Film addFilm(Film newFilm) {
         return filmStorage.addFilm(newFilm);
     }
 
-    public Film updateFilm(Film newFilm) throws ValidationException, NotFoundException {
+    public Film updateFilm(Film newFilm) {
         return filmStorage.updateFilm(newFilm);
     }
 
-    public void putLike(long filmId, long userId) throws NotFoundException {
+    public void putLike(long filmId, long userId) {
         Film film = filmStorage.getFilmById(filmId);
         User user = userStorage.getUserById(userId);
         film.putLike(user.getId());
         log.info("Фильму {} добавлен лайк от пользователя {}", filmId, userId);
     }
 
-    public void removeLike(long filmId, long userId) throws NotFoundException {
+    public void removeLike(long filmId, long userId) {
         Film film = filmStorage.getFilmById(filmId);
         User user = userStorage.getUserById(userId);
         film.removeLike(user.getId());
