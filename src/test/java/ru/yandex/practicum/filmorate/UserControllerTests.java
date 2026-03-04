@@ -120,7 +120,6 @@ public class UserControllerTests {
 
         User user = createValidUser();
         postValidUser(user);
-        
         user.setLogin("");
 
         String json = gson.toJson(user);
