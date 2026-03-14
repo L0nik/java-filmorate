@@ -24,6 +24,8 @@ public class Film extends BaseModel {
     private LocalDate releaseDate;
     private Integer duration;
     private final Set<Long> likes = new HashSet<>();
+    private final Set<Genre> genre = new HashSet<>();
+    private RatingMPA ratingMPA;
 
     @Getter
     private static final int maxDescriptionLength = 200;
