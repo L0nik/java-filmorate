@@ -19,7 +19,7 @@ public class FilmService {
     private final UserStorage userStorage;
 
     public FilmService(
-            FilmStorage filmStorage,
+            @Qualifier("dbFilmStorage") FilmStorage filmStorage,
             @Qualifier("dbUserStorage") UserStorage userStorage
     ) {
         this.filmStorage = filmStorage;
@@ -68,6 +68,10 @@ public class FilmService {
         if (newFilm.getDuration() != null) {
             newFilm.validateDuration();
             film.setDuration(newFilm.getDuration());
+        }
+
+        if (newFilm.getRatingId() != null) {
+            film.setRatingId(newFilm.getRatingId());
         }
 
         filmStorage.updateFilm(film);

@@ -33,6 +33,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film addFilm(Film newFilm) {
+        log.info("Начало добавления фильма {}", newFilm);
         newFilm.setId(getNextId());
         films.put(newFilm.getId(), newFilm);
         log.info("Добавлен новый фильм: {}", newFilm);

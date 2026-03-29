@@ -23,9 +23,9 @@ public class Film extends BaseModel {
     private String description;
     private LocalDate releaseDate;
     private Integer duration;
+    private Long ratingId;
     private final Set<Long> likes = new HashSet<>();
     private final Set<Genre> genre = new HashSet<>();
-    private Long ratingId;
 
     @Getter
     private static final int maxDescriptionLength = 200;

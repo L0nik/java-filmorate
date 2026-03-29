@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @Repository("dbUserStorage")
 @Slf4j
-public class DbUserStorage extends DbBaseStorage<User> implements UserStorage{
+public class DbUserStorage extends DbBaseStorage<User> implements UserStorage {
 
     private static final String FIND_ALL_QUERY = "SELECT * FROM users";
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM users WHERE id = ?";
