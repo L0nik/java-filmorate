@@ -54,7 +54,6 @@ public class DbFilmStorage extends DbBaseStorage<Film> implements FilmStorage {
     @Override
     public void updateFilm(Film newFilm) {
         log.info("Начало обновления фильма {}", newFilm);
-        System.out.println(newFilm.getRatingId());
         update(
                 UPDATE_QUERY,
                 newFilm.getName(),
