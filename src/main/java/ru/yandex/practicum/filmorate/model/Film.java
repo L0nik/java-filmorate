@@ -11,10 +11,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Set;
 
-
-/**
- * Film.
- */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)

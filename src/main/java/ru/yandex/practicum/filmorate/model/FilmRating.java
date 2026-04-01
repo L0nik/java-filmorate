@@ -7,6 +7,6 @@ import lombok.ToString;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class Genre extends BaseModel {
+public class FilmRating extends BaseModel {
     private String name;
 }

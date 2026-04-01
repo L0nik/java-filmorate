@@ -5,11 +5,17 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.FilmRating;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FilmRatingStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -17,13 +23,19 @@ public class FilmService {
 
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+    private final GenreStorage genreStorage;
+    private final FilmRatingStorage ratingStorage;
 
     public FilmService(
             @Qualifier("dbFilmStorage") FilmStorage filmStorage,
-            @Qualifier("dbUserStorage") UserStorage userStorage
+            @Qualifier("dbUserStorage") UserStorage userStorage,
+            GenreStorage genreStorage,
+            FilmRatingStorage ratingStorage
     ) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
+        this.genreStorage = genreStorage;
+        this.ratingStorage = ratingStorage;
     }
 
     public Film getFilmById(long id) {
@@ -100,6 +112,22 @@ public class FilmService {
                 .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
                 .limit(count)
                 .toList();
+    }
+
+    public Collection<Genre> getAllGenres() {
+        return genreStorage.getAllGenres();
+    }
+
+    public Genre getGenreById(long id) {
+        return genreStorage.getGenreById(id);
+    }
+
+    public Collection<FilmRating> getAllRatings() {
+        return ratingStorage.getAllRatings();
+    }
+
+    public FilmRating getRatingById(long id) {
+        return ratingStorage.getRatingById(id);
     }
 
     private void validateFilm(Film film) {
