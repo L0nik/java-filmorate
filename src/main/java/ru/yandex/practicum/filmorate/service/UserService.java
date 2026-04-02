@@ -4,28 +4,46 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FriendshipStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 
 @Service
 @Slf4j
 public class UserService {
 
     private final UserStorage userStorage;
+    private final FriendshipStorage friendshipStorage;
 
-    public UserService(@Qualifier("dbUserStorage") UserStorage userStorage) {
+    public UserService(
+            @Qualifier("dbUserStorage") UserStorage userStorage,
+            FriendshipStorage friendshipStorage
+    ) {
         this.userStorage = userStorage;
+        this.friendshipStorage = friendshipStorage;
     }
 
     public User getUserById(long id) {
-        return userStorage.getUserById(id);
+        User user = userStorage.getUserById(id);
+        friendshipStorage.getFriendsOfUser(id).forEach(friendship -> {
+            user.addFriend(friendship.getFriendId());
+        });
+        return user;
     }
 
     public Collection<User> getAllUsers() {
-        return userStorage.getAllUsers();
+        Collection<User> users = userStorage.getAllUsers();
+        users.forEach(user -> {
+            friendshipStorage.getFriendsOfUser(user.getId()).forEach(friendship -> {
+                user.addFriend(friendship.getFriendId());
+            });
+        });
+        return users;
     }
 
     public User addUser(User newUser) {
@@ -77,33 +95,30 @@ public class UserService {
 
 
     public void addFriend(long userId, long friendId) {
-        User user = userStorage.getUserById(userId);
-        User friend = userStorage.getUserById(friendId);
-        user.addFriend(friendId);
-        friend.addFriend(userId);
+        friendshipStorage.addFriend(userId, friendId);
         log.info("Пользователь {} добавил в друзья пользователя {}", userId, friendId);
     }
 
     public void deleteFriend(long userId, long friendId) {
-        User user = userStorage.getUserById(userId);
-        User friend = userStorage.getUserById(friendId);
-        user.deleteFriend(friendId);
-        friend.deleteFriend(userId);
+        friendshipStorage.deleteFriend(userId, friendId);
         log.info("Пользователь {} удалил из друзей пользователя {}", userId, friendId);
     }
 
     public Collection<User> getFriendsOfUser(long userId) {
-        User user = userStorage.getUserById(userId);
-        return user.getFriends().stream()
-                .map(userStorage::getUserById)
+        return friendshipStorage.getFriendsOfUser(userId).stream()
+                .map(friendship -> userStorage.getUserById(friendship.getUserId()))
                 .toList();
     }
 
     public Collection<User> getCommonFriends(long userId1, long userId2) {
-        User user1 = userStorage.getUserById(userId1);
-        User user2 = userStorage.getUserById(userId2);
-        HashSet<Long> commonFriends = new HashSet<>(user1.getFriends());
-        commonFriends.retainAll(user2.getFriends());
+        List<Long> friendsIds1 = friendshipStorage.getFriendsOfUser(userId1).stream()
+                .map(Friendship::getFriendId)
+                .toList();
+        List<Long> friendsIds2 = friendshipStorage.getFriendsOfUser(userId2).stream()
+                .map(Friendship::getFriendId)
+                .toList();
+        HashSet<Long> commonFriends = new HashSet<>(friendsIds1);
+        commonFriends.retainAll(friendsIds2);
         return commonFriends.stream()
                 .map(userStorage::getUserById)
                 .toList();

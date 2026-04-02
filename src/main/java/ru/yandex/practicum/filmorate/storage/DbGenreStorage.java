@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @Repository
 @Slf4j
-public class DbGenreStorage extends DbBaseStorage<Genre> {
+public class DbGenreStorage extends DbBaseStorage<Genre> implements GenreStorage {
 
     private final static String GET_BY_ID_QUERY = "SELECT * FROM genre WHERE id = ?";
     private final static String GET_ALL_QUERY = "SELECT * FROM genre";

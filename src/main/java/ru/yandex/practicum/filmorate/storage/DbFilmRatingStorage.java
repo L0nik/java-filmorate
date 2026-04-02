@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @Repository
 @Slf4j
-public class DbFilmRatingStorage extends DbBaseStorage<FilmRating> {
+public class DbFilmRatingStorage extends DbBaseStorage<FilmRating> implements FilmRatingStorage {
 
     private final static String GET_BY_ID_QUERY = "SELECT * FROM rating_mpa WHERE id = ?";
     private final static String GET_ALL_QUERY = "SELECT * FROM rating_mpa";
