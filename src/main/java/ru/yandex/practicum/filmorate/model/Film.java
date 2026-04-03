@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Data
@@ -22,7 +23,7 @@ public class Film extends BaseModel {
     private Integer duration;
     private Long ratingId;
     private final Set<Long> likes = new HashSet<>();
-    private final Set<Long> genre = new HashSet<>();
+    private final Set<Long> genres = new HashSet<>();
 
     @Getter
     private static final int maxDescriptionLength = 200;
@@ -69,6 +70,6 @@ public class Film extends BaseModel {
     }
 
     public void addGenres(Collection<Long> genres) {
-        this.genre.addAll(genres);
+        this.genres.addAll(genres);
     }
 }

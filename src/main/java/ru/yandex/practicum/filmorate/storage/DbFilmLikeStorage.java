@@ -10,7 +10,7 @@ import java.util.Collection;
 @Repository
 public class DbFilmLikeStorage extends DbBaseStorage<FilmLike> implements FilmLikeStorage {
     private static final String GET_FILM_LIKES_QUERY = "SELECT * FROM film_likes WHERE film_id = ?";
-    private static final String GET_ALL_QUERY = "SELECT * FROM film_likes WHERE film_id = ?";
+    private static final String GET_ALL_QUERY = "SELECT * FROM film_likes";
     private static final String PUT_LIKE_QUERY = "INSERT INTO film_likes (film_id, user_id) VALUES (?, ?)";
     private static final String REMOVE_LIKE_QUERY = "DELETE FROM film_likes WHERE film_id = ? AND user_id = ?";
 

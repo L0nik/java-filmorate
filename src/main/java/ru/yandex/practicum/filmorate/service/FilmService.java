@@ -3,13 +3,15 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dto.FilmDto;
+import ru.yandex.practicum.filmorate.dto.NewFilmRequest;
+import ru.yandex.practicum.filmorate.dto.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.storage.*;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 @Service
 @Slf4j
@@ -20,19 +22,22 @@ public class FilmService {
     private final GenreStorage genreStorage;
     private final FilmRatingStorage ratingStorage;
     private final FilmLikeStorage likeStorage;
+    private final FilmGenreStorage filmGenreStorage;
 
     public FilmService(
             @Qualifier("dbFilmStorage") FilmStorage filmStorage,
             @Qualifier("dbUserStorage") UserStorage userStorage,
             GenreStorage genreStorage,
             FilmRatingStorage ratingStorage,
-            FilmLikeStorage likeStorage
+            FilmLikeStorage likeStorage,
+            FilmGenreStorage filmGenreStorage
     ) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
         this.genreStorage = genreStorage;
         this.ratingStorage = ratingStorage;
         this.likeStorage = likeStorage;
+        this.filmGenreStorage = filmGenreStorage;
     }
 
     public Film getFilmById(long id) {
@@ -40,13 +45,18 @@ public class FilmService {
         Collection<Long> likes = likeStorage.getLikesByFilmId(id).stream()
                 .map(FilmLike::getUserId)
                 .toList();
+        Collection<Long> genres = filmGenreStorage.getGenresByFilmId(id).stream()
+                .map(FilmGenre::getGenreId)
+                .toList();
         film.addLikes(likes);
+        film.addGenres(genres);
         return film;
     }
 
     public Collection<Film> getAllFilms() {
         Collection<Film> films = filmStorage.getAllFilms();
         Collection<FilmLike> likes = likeStorage.getAll();
+        Collection<FilmGenre> genres = filmGenreStorage.getAll();
         films.forEach(film -> {
             film.addLikes(
                     likes.stream()
@@ -54,55 +64,63 @@ public class FilmService {
                             .map(FilmLike::getUserId)
                             .toList()
             );
+            film.addGenres(
+                    genres.stream()
+                            .filter(filmGenre -> film.getId().equals(filmGenre.getFilmId()))
+                            .map(FilmGenre::getGenreId)
+                            .toList()
+            );
         });
         return films;
     }
 
-    public Film addFilm(Film newFilm) {
+    public FilmDto addFilm(NewFilmRequest request) {
+        Film newFilm = FilmMapper.mapToFilm(request);
         validateFilm(newFilm);
-        return filmStorage.addFilm(newFilm);
+        newFilm = filmStorage.addFilm(newFilm);
+        return FilmMapper.mapToFilmDto(newFilm);
     }
 
-    public Film updateFilm(Film newFilm) {
+    public FilmDto updateFilm(UpdateFilmRequest request) {
 
-        if (newFilm.getId() == null) {
+        if (request.getId() == null) {
             String errorMessage = "Не указан id";
             log.error(errorMessage);
             throw new ValidationException(errorMessage);
         }
 
-        Film film = filmStorage.getFilmById(newFilm.getId());
+        Film film = filmStorage.getFilmById(request.getId());
 
         log.info("Начало обновления фильма: {}", film);
-        if (newFilm.getName() != null) {
-            newFilm.validateName();
-            film.setName(newFilm.getName());
+        if (request.getName() != null) {
+            film.setName(request.getName());
+            film.validateName();
         }
 
-        if (newFilm.getDescription() != null) {
-            newFilm.validateDescription();
-            film.setDescription(newFilm.getDescription());
+        if (request.getDescription() != null) {
+            film.setDescription(request.getDescription());
+            film.validateDescription();
         }
 
-        if (newFilm.getReleaseDate() != null) {
-            newFilm.validateReleaseDate();
-            film.setReleaseDate(newFilm.getReleaseDate());
+        if (request.getReleaseDate() != null) {
+            film.setReleaseDate(request.getReleaseDate());
+            film.validateReleaseDate();
         }
 
-        if (newFilm.getDuration() != null) {
-            newFilm.validateDuration();
-            film.setDuration(newFilm.getDuration());
+        if (request.getDuration() != null) {
+            film.setDuration(request.getDuration());
+            film.validateDuration();
         }
 
-        if (newFilm.getRatingId() != null) {
-            film.setRatingId(newFilm.getRatingId());
+        if (request.getMpa() != null) {
+            film.setRatingId(request.getMpa().getId());
         }
 
         filmStorage.updateFilm(film);
 
         log.info("Фильм успешно обновлен: {}", film);
 
-        return film;
+        return FilmMapper.mapToFilmDto(film);
     }
 
     public void putLike(long filmId, long userId) {
