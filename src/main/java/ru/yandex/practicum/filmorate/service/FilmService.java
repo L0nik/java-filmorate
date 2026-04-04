@@ -3,11 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dto.FilmDto;
-import ru.yandex.practicum.filmorate.dto.NewFilmRequest;
-import ru.yandex.practicum.filmorate.dto.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.storage.*;
 
@@ -45,18 +41,27 @@ public class FilmService {
         Collection<Long> likes = likeStorage.getLikesByFilmId(id).stream()
                 .map(FilmLike::getUserId)
                 .toList();
-        Collection<Long> genres = filmGenreStorage.getGenresByFilmId(id).stream()
+        Collection<Genre> genres = genreStorage.getAllGenres();
+        Collection<Genre> filmGenres = filmGenreStorage.getGenresByFilmId(id).stream()
                 .map(FilmGenre::getGenreId)
+                .sorted(Long::compare)
+                .flatMap(
+                        genreId -> genres.stream()
+                                .filter(genre -> genreId.equals(genre.getId()))
+                                .findFirst()
+                                .stream()
+                )
                 .toList();
         film.addLikes(likes);
-        film.addGenres(genres);
+        film.addGenres(filmGenres);
         return film;
     }
 
     public Collection<Film> getAllFilms() {
         Collection<Film> films = filmStorage.getAllFilms();
         Collection<FilmLike> likes = likeStorage.getAll();
-        Collection<FilmGenre> genres = filmGenreStorage.getAll();
+        Collection<Genre> genres = genreStorage.getAllGenres();
+        Collection<FilmGenre> filmGenres = filmGenreStorage.getAll();
         films.forEach(film -> {
             film.addLikes(
                     likes.stream()
@@ -65,62 +70,92 @@ public class FilmService {
                             .toList()
             );
             film.addGenres(
-                    genres.stream()
+                    filmGenres.stream()
                             .filter(filmGenre -> film.getId().equals(filmGenre.getFilmId()))
                             .map(FilmGenre::getGenreId)
+                            .sorted(Long::compare)
+                            .flatMap(
+                                    genreId -> genres.stream()
+                                            .filter(genre -> genre.getId().equals(genreId))
+                                            .findFirst()
+                                            .stream()
+                            )
                             .toList()
             );
         });
         return films;
     }
 
-    public FilmDto addFilm(NewFilmRequest request) {
-        Film newFilm = FilmMapper.mapToFilm(request);
+    public Film addFilm(Film newFilm) {
         validateFilm(newFilm);
+        if (newFilm.getMpa() != null) {
+            newFilm.setMpa(ratingStorage.getRatingById(newFilm.getMpa().getId()));
+        }
+        if (newFilm.getGenres() != null && !newFilm.getGenres().isEmpty()) {
+            newFilm.getGenres().forEach(
+                    genre -> {
+                        Genre dbGenre = genreStorage.getGenreById(genre.getId());
+                        genre.setName(dbGenre.getName());
+                    }
+            );
+        }
         newFilm = filmStorage.addFilm(newFilm);
-        return FilmMapper.mapToFilmDto(newFilm);
+        if (newFilm.getGenres() != null && !newFilm.getGenres().isEmpty()) {
+            filmGenreStorage.addGenresToFilm(
+                    newFilm.getId(),
+                    newFilm.getGenres().stream().map(Genre::getId).toList()
+            );
+        }
+        return newFilm;
     }
 
-    public FilmDto updateFilm(UpdateFilmRequest request) {
+    public Film updateFilm(Film newFilm) {
 
-        if (request.getId() == null) {
+        if (newFilm.getId() == null) {
             String errorMessage = "Не указан id";
             log.error(errorMessage);
             throw new ValidationException(errorMessage);
         }
 
-        Film film = filmStorage.getFilmById(request.getId());
+        Film film = filmStorage.getFilmById(newFilm.getId());
 
         log.info("Начало обновления фильма: {}", film);
-        if (request.getName() != null) {
-            film.setName(request.getName());
+        if (newFilm.getName() != null) {
             film.validateName();
+            film.setName(newFilm.getName());
         }
 
-        if (request.getDescription() != null) {
-            film.setDescription(request.getDescription());
+        if (newFilm.getDescription() != null) {
             film.validateDescription();
+            film.setDescription(newFilm.getDescription());
         }
 
-        if (request.getReleaseDate() != null) {
-            film.setReleaseDate(request.getReleaseDate());
+        if (newFilm.getReleaseDate() != null) {
             film.validateReleaseDate();
+            film.setReleaseDate(newFilm.getReleaseDate());
         }
 
-        if (request.getDuration() != null) {
-            film.setDuration(request.getDuration());
+        if (newFilm.getDuration() != null) {
             film.validateDuration();
+            film.setDuration(newFilm.getDuration());
         }
 
-        if (request.getMpa() != null) {
-            film.setRatingId(request.getMpa().getId());
+        if (newFilm.getMpa() != null) {
+            film.setMpa(ratingStorage.getRatingById(newFilm.getMpa().getId()));
+        }
+
+        if (newFilm.getGenres() != null && !newFilm.getGenres().isEmpty()) {
+            filmGenreStorage.updateGenresOfFilm(
+                    newFilm.getId(),
+                    newFilm.getGenres().stream().map(Genre::getId).toList()
+            );
         }
 
         filmStorage.updateFilm(film);
 
         log.info("Фильм успешно обновлен: {}", film);
 
-        return FilmMapper.mapToFilmDto(film);
+        return film;
     }
 
     public void putLike(long filmId, long userId) {

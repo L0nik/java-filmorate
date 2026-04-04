@@ -67,7 +67,7 @@ public class DbFilmStorageTests {
         newFilm.setDescription("test description new");
         newFilm.setReleaseDate(LocalDate.of(2020, 1, 1));
         newFilm.setDuration(100);
-        newFilm.setRatingId(2L);
+        newFilm.setMpa(2L);
 
         Film savedFilm = filmStorage.addFilm(newFilm);
 
@@ -101,7 +101,7 @@ public class DbFilmStorageTests {
         updatedFilm.setDescription(filmBefore.getDescription() + " updated");
         updatedFilm.setReleaseDate(filmBefore.getReleaseDate());
         updatedFilm.setDuration(filmBefore.getDuration() + 10);
-        updatedFilm.setRatingId(3L);
+        updatedFilm.setMpa(3L);
 
         filmStorage.updateFilm(updatedFilm);
 

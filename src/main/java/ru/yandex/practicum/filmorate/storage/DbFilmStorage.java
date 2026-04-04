@@ -14,8 +14,8 @@ import java.util.Optional;
 @Slf4j
 public class DbFilmStorage extends DbBaseStorage<Film> implements FilmStorage {
 
-    private final static String GET_BY_ID_QUERY = "SELECT * FROM films WHERE id = ?";
-    private final static String GET_ALL_QUERY = "SELECT * FROM films";
+    private final static String GET_BY_ID_QUERY = "SELECT f.*, r.name AS rating_name FROM films  AS f JOIN rating_mpa AS r ON f.rating_id = r.id WHERE f.id = ?";
+    private final static String GET_ALL_QUERY = "SELECT f.*, r.name AS rating_name FROM films AS f JOIN rating_mpa AS r ON f.rating_id = r.id";
     private final static String INSERT_QUERY = "INSERT INTO films (name, description, release_date, duration, rating_id)" +
             " VALUES (?, ?, ?, ?, ?)";
     private final static String UPDATE_QUERY = "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, rating_id = ? WHERE id = ?";
@@ -44,7 +44,7 @@ public class DbFilmStorage extends DbBaseStorage<Film> implements FilmStorage {
                 newFilm.getDescription(),
                 newFilm.getReleaseDate(),
                 newFilm.getDuration(),
-                newFilm.getRatingId()
+                newFilm.getMpa().getId()
         );
         newFilm.setId(id);
         log.info("Добавлен новый фильм: {}", newFilm);
@@ -60,7 +60,7 @@ public class DbFilmStorage extends DbBaseStorage<Film> implements FilmStorage {
                 newFilm.getDescription(),
                 newFilm.getReleaseDate(),
                 newFilm.getDuration(),
-                newFilm.getRatingId(),
+                newFilm.getMpa().getId(),
                 newFilm.getId()
         );
         log.info("Обновлен фильм: {}", newFilm);

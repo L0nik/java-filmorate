@@ -21,9 +21,9 @@ public class Film extends BaseModel {
     private String description;
     private LocalDate releaseDate;
     private Integer duration;
-    private Long ratingId;
+    private FilmRating mpa;
     private final Set<Long> likes = new HashSet<>();
-    private final Set<Long> genres = new HashSet<>();
+    private final Set<Genre> genres = new LinkedHashSet<>();
 
     @Getter
     private static final int maxDescriptionLength = 200;
@@ -69,7 +69,7 @@ public class Film extends BaseModel {
         this.likes.addAll(likes);
     }
 
-    public void addGenres(Collection<Long> genres) {
+    public void addGenres(Collection<Genre> genres) {
         this.genres.addAll(genres);
     }
 }
