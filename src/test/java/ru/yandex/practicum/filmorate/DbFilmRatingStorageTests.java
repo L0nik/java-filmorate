@@ -30,7 +30,7 @@ public class DbFilmRatingStorageTests {
 
     private final DbFilmRatingStorage ratingStorage;
     private final JdbcTemplate jdbc;
-    
+
     @Test
     @DisplayName("Должен вернуться рейтинг, если он существует")
     public void testFindRatingByIdPositive() {
