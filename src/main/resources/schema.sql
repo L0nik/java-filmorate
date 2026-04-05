@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS "films" (
   "description" varchar NOT NULL,
   "release_date" date NOT NULL,
   "duration" integer NOT NULL,
-  "rating_id" integer
+  "rating_id" integer NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS "users" (

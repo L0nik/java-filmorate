@@ -14,7 +14,7 @@ import java.util.Optional;
 @Slf4j
 public class DbFilmStorage extends DbBaseStorage<Film> implements FilmStorage {
 
-    private static final String GET_BY_ID_QUERY = "SELECT f.*, r.name AS rating_name FROM films  AS f JOIN rating_mpa AS r ON f.rating_id = r.id WHERE f.id = ?";
+    private static final String GET_BY_ID_QUERY = "SELECT f.*, r.name AS rating_name FROM films AS f JOIN rating_mpa AS r ON f.rating_id = r.id WHERE f.id = ?";
     private static final String GET_ALL_QUERY = "SELECT f.*, r.name AS rating_name FROM films AS f JOIN rating_mpa AS r ON f.rating_id = r.id";
     private static final String INSERT_QUERY = "INSERT INTO films (name, description, release_date, duration, rating_id)" +
             " VALUES (?, ?, ?, ?, ?)";

@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.FilmRating;
 import ru.yandex.practicum.filmorate.storage.DbFilmStorage;
 import ru.yandex.practicum.filmorate.storage.mappers.FilmRowMapper;
 
@@ -29,6 +30,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class DbFilmStorageTests {
     private final DbFilmStorage filmStorage;
     private final JdbcTemplate jdbc;
+
+    private static final String GET_FILM_BY_ID_QUERY = "SELECT f.*, r.name AS rating_name " +
+            "FROM films AS f JOIN rating_mpa AS r ON f.rating_id = r.id WHERE f.id = ?";
+    private static final String GET_ALL_FILMS_QUERY = "SELECT f.*, r.name AS rating_name " +
+            "FROM films AS f JOIN rating_mpa AS r ON f.rating_id = r.id";
 
     @BeforeEach
     public void beforeEach() {
@@ -62,12 +68,16 @@ public class DbFilmStorageTests {
     @DisplayName("Должен успешно сохранить фильм и вернуть его")
     void testAddFilm() {
 
+        FilmRating mpa = new FilmRating();
+        mpa.setId(2L);
+        mpa.setName("PG");
+
         Film newFilm = new Film();
         newFilm.setName("test name new");
         newFilm.setDescription("test description new");
         newFilm.setReleaseDate(LocalDate.of(2020, 1, 1));
         newFilm.setDuration(100);
-        newFilm.setMpa(2L);
+        newFilm.setMpa(mpa);
 
         Film savedFilm = filmStorage.addFilm(newFilm);
 
@@ -78,8 +88,7 @@ public class DbFilmStorageTests {
 
         assertThat(savedFilm.getId()).isPositive();
 
-        String sql = "SELECT * FROM films WHERE id = ?";
-        Film filmFromDb = jdbc.queryForObject(sql, new FilmRowMapper(), savedFilm.getId());
+        Film filmFromDb = jdbc.queryForObject(GET_FILM_BY_ID_QUERY, new FilmRowMapper(), savedFilm.getId());
 
         assertThat(filmFromDb)
                 .isNotNull()
@@ -92,8 +101,13 @@ public class DbFilmStorageTests {
     void testUpdateFilm() {
 
         long filmId = 1L;
-        Film filmBefore = jdbc.queryForObject("SELECT * FROM films WHERE id = ?", new FilmRowMapper(), filmId);
+
+        Film filmBefore = jdbc.queryForObject(GET_FILM_BY_ID_QUERY, new FilmRowMapper(), filmId);
         assertThat(filmBefore).isNotNull();
+
+        FilmRating mpa = new FilmRating();
+        mpa.setId(3L);
+        mpa.setName("PG-13");
 
         Film updatedFilm = new Film();
         updatedFilm.setId(filmId);
@@ -101,11 +115,11 @@ public class DbFilmStorageTests {
         updatedFilm.setDescription(filmBefore.getDescription() + " updated");
         updatedFilm.setReleaseDate(filmBefore.getReleaseDate());
         updatedFilm.setDuration(filmBefore.getDuration() + 10);
-        updatedFilm.setMpa(3L);
+        updatedFilm.setMpa(mpa);
 
         filmStorage.updateFilm(updatedFilm);
 
-        Film dbFilm = jdbc.queryForObject("SELECT * FROM films WHERE id = ?", new FilmRowMapper(), 1L);
+        Film dbFilm = jdbc.queryForObject(GET_FILM_BY_ID_QUERY, new FilmRowMapper(), filmId);
 
         assertThat(dbFilm)
                 .isNotNull()
@@ -117,7 +131,7 @@ public class DbFilmStorageTests {
     @DisplayName("Должен вернуть все фильмы")
     void testGetAllFilms() {
 
-        List<Film> dbFilms = jdbc.query("SELECT * FROM films", new FilmRowMapper());
+        List<Film> dbFilms = jdbc.query(GET_ALL_FILMS_QUERY, new FilmRowMapper());
         Collection<Film> films = filmStorage.getAllFilms();
         assertThat(films).hasSize(dbFilms.size());
 

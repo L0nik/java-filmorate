@@ -121,22 +121,22 @@ public class FilmService {
 
         log.info("Начало обновления фильма: {}", film);
         if (newFilm.getName() != null) {
-            film.validateName();
+            newFilm.validateName();
             film.setName(newFilm.getName());
         }
 
         if (newFilm.getDescription() != null) {
-            film.validateDescription();
+            newFilm.validateDescription();
             film.setDescription(newFilm.getDescription());
         }
 
         if (newFilm.getReleaseDate() != null) {
-            film.validateReleaseDate();
+            newFilm.validateReleaseDate();
             film.setReleaseDate(newFilm.getReleaseDate());
         }
 
         if (newFilm.getDuration() != null) {
-            film.validateDuration();
+            newFilm.validateDuration();
             film.setDuration(newFilm.getDuration());
         }
 
