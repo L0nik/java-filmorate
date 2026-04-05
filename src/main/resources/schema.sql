@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS "users" (
 CREATE TABLE IF NOT EXISTS "friendship" (
   "user_id" integer NOT NULL,
   "friend_id" integer NOT NULL,
-  PRIMARY KEY ("student_id", "course_id")
+  PRIMARY KEY ("user_id", "friend_id")
 );
 
 CREATE TABLE IF NOT EXISTS "genre" (
