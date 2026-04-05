@@ -27,6 +27,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class DbGenreStorageTests {
     private final DbGenreStorage genreStorage;
     private final JdbcTemplate jdbc;
+
     @Test
     @DisplayName("Должен вернуться жанр, если он существует")
     public void testFindGenreByIdPositive() {
