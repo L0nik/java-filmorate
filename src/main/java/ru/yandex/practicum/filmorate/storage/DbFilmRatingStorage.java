@@ -14,8 +14,8 @@ import java.util.Optional;
 @Slf4j
 public class DbFilmRatingStorage extends DbBaseStorage<FilmRating> implements FilmRatingStorage {
 
-    private final static String GET_BY_ID_QUERY = "SELECT * FROM rating_mpa WHERE id = ?";
-    private final static String GET_ALL_QUERY = "SELECT * FROM rating_mpa";
+    private static final String GET_BY_ID_QUERY = "SELECT * FROM rating_mpa WHERE id = ?";
+    private static final String GET_ALL_QUERY = "SELECT * FROM rating_mpa";
 
     public DbFilmRatingStorage(JdbcTemplate jdbc, FilmRatingRowMapper mapper) {
         super(jdbc, mapper);

@@ -14,8 +14,8 @@ import java.util.Optional;
 @Slf4j
 public class DbGenreStorage extends DbBaseStorage<Genre> implements GenreStorage {
 
-    private final static String GET_BY_ID_QUERY = "SELECT * FROM genre WHERE id = ?";
-    private final static String GET_ALL_QUERY = "SELECT * FROM genre";
+    private static final String GET_BY_ID_QUERY = "SELECT * FROM genre WHERE id = ?";
+    private static final String GET_ALL_QUERY = "SELECT * FROM genre";
 
     public DbGenreStorage(JdbcTemplate jdbc, GenreRowMapper mapper) {
         super(jdbc, mapper);

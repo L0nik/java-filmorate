@@ -15,10 +15,10 @@ import java.util.Optional;
 @Slf4j
 public class DbFriendshipStorage extends DbBaseStorage<Friendship> implements FriendshipStorage {
 
-    private final static String ADD_FRIEND_QUERY = "INSERT INTO friendship (user_id, friend_id) VALUES (?, ?)";
-    private final static String DELETE_FRIEND_QUERY = "DELETE FROM friendship WHERE user_id = ? AND friend_id = ?";
-    private final static String GET_FRIENDS_OF_USER_QUERY = "SELECT * FROM friendship WHERE user_id = ?";
-    private final static String CHECK_USER_HAS_FRIEND_QUERY = "SELECT * FROM friendship WHERE user_id = ? AND friend_id = ?";
+    private static final String ADD_FRIEND_QUERY = "INSERT INTO friendship (user_id, friend_id) VALUES (?, ?)";
+    private static final String DELETE_FRIEND_QUERY = "DELETE FROM friendship WHERE user_id = ? AND friend_id = ?";
+    private static final String GET_FRIENDS_OF_USER_QUERY = "SELECT * FROM friendship WHERE user_id = ?";
+    private static final String CHECK_USER_HAS_FRIEND_QUERY = "SELECT * FROM friendship WHERE user_id = ? AND friend_id = ?";
 
     public DbFriendshipStorage(JdbcTemplate jdbc, FriendshipRowMapper friendshipRowMapper) {
         super(jdbc, friendshipRowMapper);
