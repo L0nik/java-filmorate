@@ -19,6 +19,12 @@ public class DbUserStorage extends DbBaseStorage<User> implements UserStorage {
     private static final String INSERT_QUERY = "INSERT INTO users(email, login, name, birthday)" +
             " VALUES (?, ?, ?, ?)";
     private static final String UPDATE_QUERY = "UPDATE users SET email = ?, login = ?, name = ?, birthday = ? WHERE id = ?";
+    private static final String GET_COMMON_FRIENDS_QUERY = "SELECT DISTINCT users.* FROM friendship AS f1" +
+            " JOIN friendship AS f2 ON f1.friend_id = f2.friend_id AND f1.user_id != f2.user_id" +
+            " JOIN users ON f2.friend_id = users.id" +
+            " WHERE f1.user_id = ? AND f2.user_id = ?";
+    private static final String GET_FRIENDS_OF_USER_QUERY = "SELECT u.* FROM users AS u INNER JOIN friendship AS f" +
+            " ON u.id = f.friend_id AND f.user_id = ?";
 
     public DbUserStorage(JdbcTemplate jdbc, RowMapper<User> mapper) {
         super(jdbc, mapper);
@@ -70,5 +76,15 @@ public class DbUserStorage extends DbBaseStorage<User> implements UserStorage {
     @Override
     public void checkIfUserExists(long id) {
         getUserById(id);
+    }
+
+    @Override
+    public Collection<User> getCommonFriends(long userId1, long userId2) {
+        return findMany(GET_COMMON_FRIENDS_QUERY, userId1, userId2);
+    }
+
+    @Override
+    public Collection<User> getFriendsOfUser(long userId) {
+        return findMany(GET_FRIENDS_OF_USER_QUERY, userId);
     }
 }

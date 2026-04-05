@@ -16,6 +16,10 @@ public class DbGenreStorage extends DbBaseStorage<Genre> implements GenreStorage
 
     private static final String GET_BY_ID_QUERY = "SELECT * FROM genre WHERE id = ?";
     private static final String GET_ALL_QUERY = "SELECT * FROM genre";
+    private static final String GET_GENRES_BY_FILM_ID_QUERY = "SELECT g.id AS id, g.name AS name" +
+            " FROM film_genre AS fg JOIN genre AS g" +
+            " ON fg.genre_id = g.id AND film_id = ?" +
+            " ORDER BY id ASC";
 
     public DbGenreStorage(JdbcTemplate jdbc, GenreRowMapper mapper) {
         super(jdbc, mapper);
@@ -34,5 +38,9 @@ public class DbGenreStorage extends DbBaseStorage<Genre> implements GenreStorage
 
     public Collection<Genre> getAllGenres() {
         return findMany(GET_ALL_QUERY);
+    }
+
+    public Collection<Genre> getGenresByFilmId(Long filmId) {
+        return findMany(GET_GENRES_BY_FILM_ID_QUERY, filmId);
     }
 }

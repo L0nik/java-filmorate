@@ -13,4 +13,6 @@ public interface FilmStorage {
     void updateFilm(Film newFilm);
 
     Collection<Film> getAllFilms();
+
+    Collection<Film> getTopFilmsByLikes(int count);
 }

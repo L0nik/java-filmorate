@@ -4,7 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.*;
+import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.FilmLike;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.*;
 
 import java.util.Collection;
@@ -41,49 +43,13 @@ public class FilmService {
         Collection<Long> likes = likeStorage.getLikesByFilmId(id).stream()
                 .map(FilmLike::getUserId)
                 .toList();
-        Collection<Genre> genres = genreStorage.getAllGenres();
-        Collection<Genre> filmGenres = filmGenreStorage.getGenresByFilmId(id).stream()
-                .map(FilmGenre::getGenreId)
-                .sorted(Long::compare)
-                .flatMap(
-                        genreId -> genres.stream()
-                                .filter(genre -> genreId.equals(genre.getId()))
-                                .findFirst()
-                                .stream()
-                )
-                .toList();
         film.addLikes(likes);
-        film.addGenres(filmGenres);
+        film.addGenres(genreStorage.getGenresByFilmId(id));
         return film;
     }
 
     public Collection<Film> getAllFilms() {
-        Collection<Film> films = filmStorage.getAllFilms();
-        Collection<FilmLike> likes = likeStorage.getAll();
-        Collection<Genre> genres = genreStorage.getAllGenres();
-        Collection<FilmGenre> filmGenres = filmGenreStorage.getAll();
-        films.forEach(film -> {
-            film.addLikes(
-                    likes.stream()
-                            .filter(like -> film.getId().equals(like.getFilmId()))
-                            .map(FilmLike::getUserId)
-                            .toList()
-            );
-            film.addGenres(
-                    filmGenres.stream()
-                            .filter(filmGenre -> film.getId().equals(filmGenre.getFilmId()))
-                            .map(FilmGenre::getGenreId)
-                            .sorted(Long::compare)
-                            .flatMap(
-                                    genreId -> genres.stream()
-                                            .filter(genre -> genre.getId().equals(genreId))
-                                            .findFirst()
-                                            .stream()
-                            )
-                            .toList()
-            );
-        });
-        return films;
+        return filmStorage.getAllFilms();
     }
 
     public Film addFilm(Film newFilm) {
@@ -169,26 +135,11 @@ public class FilmService {
     }
 
     public Collection<Film> getTopFilmsByLikes(int count) {
-        return getAllFilms().stream()
+        return filmStorage.getTopFilmsByLikes(count);
+        /*return getAllFilms().stream()
                 .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
                 .limit(count)
-                .toList();
-    }
-
-    public Collection<Genre> getAllGenres() {
-        return genreStorage.getAllGenres();
-    }
-
-    public Genre getGenreById(long id) {
-        return genreStorage.getGenreById(id);
-    }
-
-    public Collection<FilmRating> getAllRatings() {
-        return ratingStorage.getAllRatings();
-    }
-
-    public FilmRating getRatingById(long id) {
-        return ratingStorage.getRatingById(id);
+                .toList();*/
     }
 
     private void validateFilm(Film film) {

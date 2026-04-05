@@ -19,6 +19,11 @@ public class DbFilmStorage extends DbBaseStorage<Film> implements FilmStorage {
     private static final String INSERT_QUERY = "INSERT INTO films (name, description, release_date, duration, rating_id)" +
             " VALUES (?, ?, ?, ?, ?)";
     private static final String UPDATE_QUERY = "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, rating_id = ? WHERE id = ?";
+    private static final String GET_TOP_FILMS_BY_LIKES_QUERY = "SELECT films.*, r.name AS rating_name, top_films_ids.likes_count FROM films INNER JOIN" +
+            " (SELECT f.id AS id, COUNT(fl.user_id) AS likes_count FROM films AS f JOIN film_likes AS fl ON f.id = fl.film_id GROUP BY f.id) AS top_films_ids" +
+            " ON films.id = top_films_ids.id" +
+            " JOIN rating_mpa AS r ON films.rating_id = r.id" +
+            " ORDER BY top_films_ids.likes_count DESC LIMIT ?";
 
     public DbFilmStorage(JdbcTemplate jdbc, FilmRowMapper mapper) {
         super(jdbc, mapper);
@@ -69,5 +74,10 @@ public class DbFilmStorage extends DbBaseStorage<Film> implements FilmStorage {
     @Override
     public Collection<Film> getAllFilms() {
         return findMany(GET_ALL_QUERY);
+    }
+
+    @Override
+    public Collection<Film> getTopFilmsByLikes(int count) {
+        return findMany(GET_TOP_FILMS_BY_LIKES_QUERY, count);
     }
 }

@@ -4,14 +4,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FriendshipStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
 
 @Service
 @Slf4j
@@ -113,23 +110,11 @@ public class UserService {
 
     public Collection<User> getFriendsOfUser(long userId) {
         userStorage.checkIfUserExists(userId);
-        return friendshipStorage.getFriendsOfUser(userId).stream()
-                .map(friendship -> userStorage.getUserById(friendship.getFriendId()))
-                .toList();
+        return userStorage.getFriendsOfUser(userId);
     }
 
     public Collection<User> getCommonFriends(long userId1, long userId2) {
-        List<Long> friendsIds1 = friendshipStorage.getFriendsOfUser(userId1).stream()
-                .map(Friendship::getFriendId)
-                .toList();
-        List<Long> friendsIds2 = friendshipStorage.getFriendsOfUser(userId2).stream()
-                .map(Friendship::getFriendId)
-                .toList();
-        HashSet<Long> commonFriends = new HashSet<>(friendsIds1);
-        commonFriends.retainAll(friendsIds2);
-        return commonFriends.stream()
-                .map(userStorage::getUserById)
-                .toList();
+        return userStorage.getCommonFriends(userId1, userId2);
     }
 
     private void validateUser(User user) {
