@@ -412,5 +412,6 @@ public class FilmControllerTests {
         HttpResponse<String> postResponse = sendPost(gson.toJson(film));
         assertEquals(200, postResponse.statusCode());
         Film createdFilm = gson.fromJson(postResponse.body(), Film.class);
+        film.setId(createdFilm.getId());
     }
 }
