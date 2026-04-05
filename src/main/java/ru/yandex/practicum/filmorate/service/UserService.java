@@ -31,7 +31,7 @@ public class UserService {
     public User getUserById(long id) {
         User user = userStorage.getUserById(id);
         friendshipStorage.getFriendsOfUser(id).forEach(friendship -> {
-            user.addFriend(friendship.getFriendId());
+            user.addFriend(userStorage.getUserById(friendship.getFriendId()));
         });
         return user;
     }
@@ -40,7 +40,7 @@ public class UserService {
         Collection<User> users = userStorage.getAllUsers();
         users.forEach(user -> {
             friendshipStorage.getFriendsOfUser(user.getId()).forEach(friendship -> {
-                user.addFriend(friendship.getFriendId());
+                user.addFriend(userStorage.getUserById(friendship.getFriendId()));
             });
         });
         return users;
@@ -95,18 +95,26 @@ public class UserService {
 
 
     public void addFriend(long userId, long friendId) {
+        userStorage.checkIfUserExists(friendId);
         friendshipStorage.addFriend(userId, friendId);
         log.info("Пользователь {} добавил в друзья пользователя {}", userId, friendId);
     }
 
     public void deleteFriend(long userId, long friendId) {
-        friendshipStorage.deleteFriend(userId, friendId);
-        log.info("Пользователь {} удалил из друзей пользователя {}", userId, friendId);
+        userStorage.checkIfUserExists(userId);
+        userStorage.checkIfUserExists(friendId);
+        if (friendshipStorage.checkIfUserHasFriend(userId, friendId)) {
+            friendshipStorage.deleteFriend(userId, friendId);
+            log.info("Пользователь {} удалил из друзей пользователя {}", userId, friendId);
+        } else {
+            log.info("У пользователя {} нет в друзьях пользователя {}", userId, friendId);
+        }
     }
 
     public Collection<User> getFriendsOfUser(long userId) {
+        userStorage.checkIfUserExists(userId);
         return friendshipStorage.getFriendsOfUser(userId).stream()
-                .map(friendship -> userStorage.getUserById(friendship.getUserId()))
+                .map(friendship -> userStorage.getUserById(friendship.getFriendId()))
                 .toList();
     }
 

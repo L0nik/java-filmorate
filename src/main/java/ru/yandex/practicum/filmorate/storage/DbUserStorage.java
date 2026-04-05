@@ -67,4 +67,8 @@ public class DbUserStorage extends DbBaseStorage<User> implements UserStorage {
         return findMany(FIND_ALL_QUERY);
     }
 
+    @Override
+    public void checkIfUserExists(long id) {
+        getUserById(id);
+    }
 }

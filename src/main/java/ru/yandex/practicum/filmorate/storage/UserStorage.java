@@ -12,4 +12,6 @@ public interface UserStorage {
     void updateUser(User newUser);
 
     Collection<User> getAllUsers();
+
+    void checkIfUserExists(long id);
 }

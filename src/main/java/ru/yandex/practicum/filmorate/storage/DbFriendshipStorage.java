@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.storage.mappers.FriendshipRowMapper;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @Slf4j
@@ -17,6 +18,7 @@ public class DbFriendshipStorage extends DbBaseStorage<Friendship> implements Fr
     private final static String ADD_FRIEND_QUERY = "INSERT INTO friendship (user_id, friend_id) VALUES (?, ?)";
     private final static String DELETE_FRIEND_QUERY = "DELETE FROM friendship WHERE user_id = ? AND friend_id = ?";
     private final static String GET_FRIENDS_OF_USER_QUERY = "SELECT * FROM friendship WHERE user_id = ?";
+    private final static String CHECK_USER_HAS_FRIEND_QUERY = "SELECT * FROM friendship WHERE user_id = ? AND friend_id = ?";
 
     public DbFriendshipStorage(JdbcTemplate jdbc, FriendshipRowMapper friendshipRowMapper) {
         super(jdbc, friendshipRowMapper);
@@ -35,6 +37,12 @@ public class DbFriendshipStorage extends DbBaseStorage<Friendship> implements Fr
     @Override
     public Collection<Friendship> getFriendsOfUser(long userId) {
         return findMany(GET_FRIENDS_OF_USER_QUERY, userId);
+    }
+
+    @Override
+    public boolean checkIfUserHasFriend(long userId, long friendId) {
+        Optional<Friendship> friendshipOpt = findOne(CHECK_USER_HAS_FRIEND_QUERY, userId, friendId);
+        return friendshipOpt.isPresent();
     }
 
 }
