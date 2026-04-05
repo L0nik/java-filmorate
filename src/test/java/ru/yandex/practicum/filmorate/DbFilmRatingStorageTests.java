@@ -27,6 +27,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @Import({DbFilmRatingStorage.class, FilmRatingRowMapper.class})
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class DbFilmRatingStorageTests {
+
     private final DbFilmRatingStorage ratingStorage;
     private final JdbcTemplate jdbc;
     
