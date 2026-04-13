@@ -7,6 +7,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.FilmRating;
 
 import java.io.IOException;
 import java.net.URI;
@@ -371,12 +372,17 @@ public class FilmControllerTests {
     }
 
     private Film createValidFilm() {
+        FilmRating mpa = new FilmRating();
+        mpa.setId(2L);
+        mpa.setName("PG");
+
         Film film = new Film();
         film.setId(1L);
         film.setName("test name");
         film.setDescription("test description");
         film.setReleaseDate(LocalDate.of(2000, 1, 1));
         film.setDuration(100);
+        film.setMpa(mpa);
         return film;
     }
 
@@ -406,5 +412,6 @@ public class FilmControllerTests {
         HttpResponse<String> postResponse = sendPost(gson.toJson(film));
         assertEquals(200, postResponse.statusCode());
         Film createdFilm = gson.fromJson(postResponse.body(), Film.class);
+        film.setId(createdFilm.getId());
     }
 }

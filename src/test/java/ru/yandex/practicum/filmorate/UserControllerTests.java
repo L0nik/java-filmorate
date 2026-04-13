@@ -22,6 +22,7 @@ public class UserControllerTests {
     private static final String BASE_URL = "http://localhost:8080/users";
     private static HttpClient client;
     private static Gson gson;
+    private static int userCount = 0;
 
     @BeforeAll
     static void beforeAll() {
@@ -359,11 +360,12 @@ public class UserControllerTests {
     }
 
     private User createValidUser() {
+        userCount++;
         User user = new User();
         user.setId(1L);
-        user.setEmail("testemail@test.com");
-        user.setLogin("testlogin");
-        user.setName("test name");
+        user.setEmail("testemail" + userCount + "@test.com");
+        user.setLogin("testlogin" + userCount);
+        user.setName("test name" + userCount);
         user.setBirthday(LocalDate.of(2000, 1, 1));
         return user;
     }
@@ -394,6 +396,7 @@ public class UserControllerTests {
         HttpResponse<String> response = sendPost(gson.toJson(user));
         assertEquals(200, response.statusCode());
         User createdUser = gson.fromJson(response.body(), User.class);
+        user.setId(createdUser.getId());
     }
 
 }

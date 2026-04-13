@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 @Data
@@ -17,7 +18,7 @@ public class User extends BaseModel {
     private String login;
     private String name;
     private LocalDate birthday;
-    private final Set<Long> friends = new HashSet<>();
+    private final Set<User> friends = new HashSet<>();
 
     public void validateEmail() {
         if (email == null || email.isBlank() || !email.contains("@")) {
@@ -37,11 +38,14 @@ public class User extends BaseModel {
         }
     }
 
-    public void addFriend(long userId) {
-        friends.add(userId);
+    public void addFriend(User user) {
+        friends.add(user);
     }
 
     public void deleteFriend(long friendId) {
-        friends.remove(friendId);
+        Optional<User> friendOpt = friends.stream()
+                .filter(friend -> friend.getId() == friendId)
+                .findFirst();
+        friendOpt.ifPresent(friends::remove);
     }
 }

@@ -8,13 +8,11 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
-
-/**
- * Film.
- */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
@@ -23,7 +21,9 @@ public class Film extends BaseModel {
     private String description;
     private LocalDate releaseDate;
     private Integer duration;
+    private FilmRating mpa;
     private final Set<Long> likes = new HashSet<>();
+    private final Set<Genre> genres = new LinkedHashSet<>();
 
     @Getter
     private static final int maxDescriptionLength = 200;
@@ -63,5 +63,13 @@ public class Film extends BaseModel {
 
     public void removeLike(long userId) {
         likes.remove(userId);
+    }
+
+    public void addLikes(Collection<Long> likes) {
+        this.likes.addAll(likes);
+    }
+
+    public void addGenres(Collection<Genre> genres) {
+        this.genres.addAll(genres);
     }
 }
