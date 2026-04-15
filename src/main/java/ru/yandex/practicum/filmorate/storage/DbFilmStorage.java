@@ -166,4 +166,9 @@ public class DbFilmStorage extends DbBaseStorage<Film> implements FilmStorage {
                 filmId
         );
     }
+
+    @Override
+    public void checkIfFilmExists(long id) {
+        getFilmById(id);
+    }
 }

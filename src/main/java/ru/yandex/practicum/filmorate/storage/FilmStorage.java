@@ -20,4 +20,7 @@ public interface FilmStorage {
 
     Collection<Film> getFilmsByDirectorSortedByYear(long directorId);
 
+
+    void checkIfFilmExists(long id);
+
 }
