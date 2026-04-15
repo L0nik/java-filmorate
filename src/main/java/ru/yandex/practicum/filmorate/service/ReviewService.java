@@ -9,6 +9,8 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import java.util.Collection;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -19,6 +21,14 @@ public class ReviewService {
 
     public Review getReviewById(long id) {
         return reviewStorage.getReviewById(id);
+    }
+
+    public Collection<Review> getReviews(Long filmId, Integer count) {
+        if (filmId == null) {
+            return reviewStorage.getReviews(count);
+        } else {
+            return reviewStorage.getReviewsByFilmId(filmId, count);
+        }
     }
 
     public Review addReview(Review newReview) {

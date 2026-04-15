@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.service.ReviewService;
 
+import java.util.Collection;
+
 @RestController
 @Slf4j
 @RequiredArgsConstructor
@@ -24,6 +26,18 @@ public class ReviewController {
     public Review getReviewById(@PathVariable Long id) {
         log.info("Получен запрос на получение отзыва по id: {}", id);
         return reviewService.getReviewById(id);
+    }
+
+    @GetMapping
+    public Collection<Review> getReviews(
+            @RequestParam(required = false) Long filmId,
+            @RequestParam(required = false) Integer count
+    ) {
+        log.info("Получен запрос на получение списка отзывов (filmId = {}, count = {})", filmId, count);
+        if (count == null) {
+            count = 10;
+        }
+        return reviewService.getReviews(filmId, count);
     }
 
     @DeleteMapping("/{id}")

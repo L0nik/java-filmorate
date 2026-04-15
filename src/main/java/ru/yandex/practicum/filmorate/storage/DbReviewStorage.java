@@ -19,6 +19,8 @@ public class DbReviewStorage extends DbBaseStorage<Review> implements ReviewStor
     private static final String INSERT_QUERY = "INSERT INTO reviews (content, is_positive, user_id, film_id) VALUES (?, ?, ?, ?)";
     private static final String UPDATE_QUERY = "UPDATE reviews SET content = ?, is_positive = ?, user_id = ?, film_id = ? WHERE id = ?";
     private static final String DELETE_QUERY = "DELETE FROM reviews WHERE id = ?";
+    private static final String GET_REVIEWS_QUERY = "SELECT reviews.*, 0 AS useful FROM reviews ORDER BY useful LIMIT ?";
+    private static final String GET_REVIEWS_BY_FILM_ID_QUERY = "SELECT reviews.*, 0 AS useful FROM reviews WHERE film_id = ? ORDER BY useful LIMIT ?";
 
     public DbReviewStorage(JdbcTemplate jdbc, RowMapper<Review> mapper) {
         super(jdbc, mapper);
@@ -66,5 +68,15 @@ public class DbReviewStorage extends DbBaseStorage<Review> implements ReviewStor
     @Override
     public void deleteReviewById(long id) {
         update(DELETE_QUERY, id);
+    }
+
+    @Override
+    public Collection<Review> getReviews(Integer count) {
+        return findMany(GET_REVIEWS_QUERY, count);
+    }
+
+    @Override
+    public Collection<Review> getReviewsByFilmId(Long filmId, Integer count) {
+        return findMany(GET_REVIEWS_BY_FILM_ID_QUERY, filmId, count);
     }
 }
