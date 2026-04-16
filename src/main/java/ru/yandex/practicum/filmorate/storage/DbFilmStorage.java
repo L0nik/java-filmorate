@@ -8,9 +8,7 @@ import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.mappers.FilmRowMapper;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Repository("dbFilmStorage")
 @Slf4j
@@ -46,9 +44,22 @@ public class DbFilmStorage extends DbBaseStorage<Film> implements FilmStorage {
     private static final String DELETE_FILM_DIRECTORS_QUERY = "DELETE FROM film_directors WHERE film_id = ?";
     private static final String LOAD_DIRECTORS_QUERY = "SELECT d.id, d.name FROM directors AS d " +
             "JOIN film_directors AS fd ON d.id = fd.director_id WHERE fd.film_id = ?";
+    private static final String SEARCH_FILMS_SQL =
+            "SELECT f.*, r.name AS rating_name, COUNT(fl.user_id) AS likes_count " +
+                    "FROM films f " +
+                    "JOIN rating_mpa r ON f.rating_id = r.id " +
+                    "LEFT JOIN film_likes fl ON f.id = fl.film_id " +
+                    "LEFT JOIN film_directors fd ON f.id = fd.film_id " +
+                    "LEFT JOIN directors d ON fd.director_id = d.id " +
+                    "WHERE ";
 
-    public DbFilmStorage(JdbcTemplate jdbc, FilmRowMapper mapper) {
+    private final GenreStorage genreStorage;
+    private final DirectorStorage directorStorage;
+
+    public DbFilmStorage(JdbcTemplate jdbc, FilmRowMapper mapper, GenreStorage genreStorage, DirectorStorage directorStorage) {
         super(jdbc, mapper);
+        this.genreStorage = genreStorage;
+        this.directorStorage = directorStorage;
     }
 
     @Override
@@ -166,4 +177,52 @@ public class DbFilmStorage extends DbBaseStorage<Film> implements FilmStorage {
                 filmId
         );
     }
+
+    @Override
+    public Collection<Film> searchFilms(String query, boolean searchByTitle, boolean searchByDirector) {
+
+        StringBuilder sql = new StringBuilder(SEARCH_FILMS_SQL);
+        List<String> conditions = new ArrayList<>();
+
+        if (searchByTitle) {
+            conditions.add("LOWER(f.name) LIKE ?");
+        }
+
+        if (searchByDirector) {
+            conditions.add("LOWER(d.name) LIKE ?");
+        }
+
+        if (conditions.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        sql.append(String.join(" OR ", conditions));
+        sql.append(" GROUP BY f.id, r.id, r.name ORDER BY likes_count DESC");
+
+        String pattern = "%" + query.toLowerCase() + "%";
+        List<Object> params = new ArrayList<>();
+
+        if (searchByTitle) {
+            params.add(pattern);
+        }
+
+        if (searchByDirector) {
+            params.add(pattern);
+        }
+
+        List<Film> films = findMany(sql.toString(), params.toArray());
+
+        for (Film film : films) {
+            film.getGenres().addAll(
+                    genreStorage.getGenresByFilmId(film.getId())
+            );
+
+            film.getDirectors().addAll(
+                    directorStorage.getDirectorsByFilmId(film.getId())
+            );
+        }
+
+        return films;
+    }
+
 }

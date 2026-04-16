@@ -20,4 +20,6 @@ public interface FilmStorage {
 
     Collection<Film> getFilmsByDirectorSortedByYear(long directorId);
 
+    Collection<Film> searchFilms(String query, boolean searchByTitle, boolean searchByDirector);
+
 }
