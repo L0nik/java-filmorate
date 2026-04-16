@@ -6,7 +6,6 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.mappers.DirectorRowMapper;
 import ru.yandex.practicum.filmorate.storage.mappers.FilmRowMapper;
 
 import java.util.Collection;
@@ -16,8 +15,6 @@ import java.util.Optional;
 @Repository("dbFilmStorage")
 @Slf4j
 public class DbFilmStorage extends DbBaseStorage<Film> implements FilmStorage {
-
-    private final DirectorRowMapper directorRowMapper;
 
     private static final String GET_BY_ID_QUERY = "SELECT f.*, r.name AS rating_name, d.id AS director_id, d.name AS director_name FROM films AS f " +
             "JOIN rating_mpa AS r ON f.rating_id = r.id " +
@@ -50,9 +47,8 @@ public class DbFilmStorage extends DbBaseStorage<Film> implements FilmStorage {
     private static final String LOAD_DIRECTORS_QUERY = "SELECT d.id, d.name FROM directors AS d " +
             "JOIN film_directors AS fd ON d.id = fd.director_id WHERE fd.film_id = ?";
 
-    public DbFilmStorage(JdbcTemplate jdbc, FilmRowMapper mapper, DirectorRowMapper directorRowMapper) {
+    public DbFilmStorage(JdbcTemplate jdbc, FilmRowMapper mapper) {
         super(jdbc, mapper);
-        this.directorRowMapper = directorRowMapper;
     }
 
     @Override
@@ -161,7 +157,12 @@ public class DbFilmStorage extends DbBaseStorage<Film> implements FilmStorage {
     private List<Director> loadDirectors(long filmId) {
         return jdbc.query(
                 LOAD_DIRECTORS_QUERY,
-                directorRowMapper,
+                (rs, rowNum) -> {
+                    Director director = new Director();
+                    director.setId(rs.getLong("id"));
+                    director.setName(rs.getString("name"));
+                    return director;
+                },
                 filmId
         );
     }
