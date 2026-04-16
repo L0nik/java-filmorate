@@ -18,4 +18,6 @@ public interface ReviewStorage {
 
     Collection<Review> getReviewsByFilmId(Long filmId, Integer count);
 
+    void checkIfReviewExists(long id);
+
 }

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.ReviewReactionStorage;
 import ru.yandex.practicum.filmorate.storage.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -16,6 +17,7 @@ import java.util.Collection;
 @RequiredArgsConstructor
 public class ReviewService {
     private final ReviewStorage reviewStorage;
+    private final ReviewReactionStorage reactionStorage;
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
 
@@ -24,11 +26,15 @@ public class ReviewService {
     }
 
     public Collection<Review> getReviews(Long filmId, Integer count) {
+        Collection<Review> reviews = null;
         if (filmId == null) {
-            return reviewStorage.getReviews(count);
+            reviews = reviewStorage.getReviews(count);
         } else {
-            return reviewStorage.getReviewsByFilmId(filmId, count);
+            reviews = reviewStorage.getReviewsByFilmId(filmId, count);
         }
+        return reviews.stream()
+                .sorted((review1, review2) -> review1.getUseful() - review2.getUseful())
+                .toList();
     }
 
     public Review addReview(Review newReview) {
@@ -77,6 +83,7 @@ public class ReviewService {
     }
 
     public void deleteReviewById(long id) {
+        reviewStorage.checkIfReviewExists(id);
         reviewStorage.deleteReviewById(id);
     }
 

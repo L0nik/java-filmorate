@@ -17,7 +17,7 @@ public class Review {
     int useful;
 
     public void validateContent() {
-        if (content == null) {
+        if (content == null || content.isBlank()) {
             throw new ValidationException("В отзыве отсутствует контент");
         }
     }
