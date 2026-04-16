@@ -7,8 +7,6 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.ReviewReaction;
 import ru.yandex.practicum.filmorate.storage.mappers.ReviewReactionRowMapper;
 
-import java.util.List;
-
 @Repository
 @Slf4j
 public class DbReviewReactionStorage extends DbBaseStorage<ReviewReaction> implements ReviewReactionStorage {
