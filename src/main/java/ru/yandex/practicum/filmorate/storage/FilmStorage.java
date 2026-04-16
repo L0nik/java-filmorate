@@ -15,4 +15,9 @@ public interface FilmStorage {
     Collection<Film> getAllFilms();
 
     Collection<Film> getTopFilmsByLikes(int count);
+
+    Collection<Film> getFilmsByDirectorSortedByLikes(long directorId);
+
+    Collection<Film> getFilmsByDirectorSortedByYear(long directorId);
+
 }

@@ -65,4 +65,13 @@ public class FilmController {
         }
         return filmService.getTopFilmsByLikes(count);
     }
+
+    @GetMapping("/director/{directorId}")
+    public Collection<Film> getFilmsByDirector(
+            @PathVariable int directorId,
+            @RequestParam String sortBy
+    ) {
+        log.info("Получен запрос на получение фильмов режиссёра {} с сортировкой {}", directorId, sortBy);
+        return filmService.getFilmsByDirector(directorId, sortBy);
+    }
 }
