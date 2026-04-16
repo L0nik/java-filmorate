@@ -18,6 +18,11 @@ public class DbDirectorStorage extends DbBaseStorage<Director> implements Direct
     private static final String INSERT_QUERY = "INSERT INTO directors (name) VALUES (?)";
     private static final String UPDATE_QUERY = "UPDATE directors SET name = ? WHERE id = ?";
     private static final String DELETE_QUERY = "DELETE FROM directors WHERE id = ?";
+    private static final String GET_BY_FILM_ID_QUERY =
+            "SELECT d.* " +
+            "FROM directors d " +
+            "JOIN film_directors fd ON d.id = fd.director_id " +
+            "WHERE fd.film_id = ?";
 
     public DbDirectorStorage(JdbcTemplate jdbc, DirectorRowMapper mapper) {
         super(jdbc, mapper);
@@ -58,6 +63,12 @@ public class DbDirectorStorage extends DbBaseStorage<Director> implements Direct
         log.debug("Выполнение запроса на удаление режиссёра с id: {}", id);
         update(DELETE_QUERY, id);
         log.info("Успешно удалён режиссёр с id: {}", id);
+    }
+
+    @Override
+    public Collection<Director> getDirectorsByFilmId(long filmId) {
+        log.debug("Получение режиссеров фильма id={}", filmId);
+        return findMany(GET_BY_FILM_ID_QUERY, filmId);
     }
 
     @Override

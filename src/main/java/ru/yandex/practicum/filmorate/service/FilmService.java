@@ -10,6 +10,9 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.*;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -21,6 +24,7 @@ public class FilmService {
     private final FilmRatingStorage ratingStorage;
     private final FilmLikeStorage likeStorage;
     private final FilmGenreStorage filmGenreStorage;
+    private final DirectorStorage directorStorage;
 
     public FilmService(
             @Qualifier("dbFilmStorage") FilmStorage filmStorage,
@@ -28,7 +32,8 @@ public class FilmService {
             GenreStorage genreStorage,
             FilmRatingStorage ratingStorage,
             FilmLikeStorage likeStorage,
-            FilmGenreStorage filmGenreStorage
+            FilmGenreStorage filmGenreStorage,
+            DirectorStorage directorStorage
     ) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
@@ -36,6 +41,7 @@ public class FilmService {
         this.ratingStorage = ratingStorage;
         this.likeStorage = likeStorage;
         this.filmGenreStorage = filmGenreStorage;
+        this.directorStorage = directorStorage;
     }
 
     public Film getFilmById(long id) {
@@ -154,6 +160,45 @@ public class FilmService {
             return filmStorage.getFilmsByDirectorSortedByYear(directorId);
         }
         throw new ValidationException("sortBy must be 'likes' or 'year'");
+    }
+
+    public Collection<Film> searchFilms(String query, String by) {
+
+        if (query == null || query.isBlank()) {
+            return Collections.emptyList();
+        }
+
+        if (by == null || by.isBlank()) {
+            return Collections.emptyList();
+        }
+
+        String[] fields = by.toLowerCase().split(",");
+        Set<String> searchFields = new HashSet<>();
+
+        for (String field : fields) {
+            searchFields.add(field.trim());
+        }
+
+        boolean searchByTitle = searchFields.contains("title");
+        boolean searchByDirector = searchFields.contains("director");
+
+        if (!searchByTitle && !searchByDirector) {
+            return Collections.emptyList();
+        }
+
+        Collection<Film> films = filmStorage.searchFilms(query, searchByTitle, searchByDirector);
+
+        for (Film film : films) {
+            film.getGenres().addAll(
+                    genreStorage.getGenresByFilmId(film.getId())
+            );
+
+            film.getDirectors().addAll(
+                    directorStorage.getDirectorsByFilmId(film.getId())
+            );
+        }
+
+        return films;
     }
 
     private void validateFilm(Film film) {

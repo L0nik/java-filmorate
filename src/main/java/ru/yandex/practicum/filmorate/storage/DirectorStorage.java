@@ -16,4 +16,6 @@ public interface DirectorStorage {
     void checkIfDirectorExists(long id);
 
     void updateDirector(Director director);
+
+    Collection<Director> getDirectorsByFilmId(long filmId);
 }
