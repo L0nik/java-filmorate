@@ -8,10 +8,7 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -22,6 +19,7 @@ public class Film extends BaseModel {
     private LocalDate releaseDate;
     private Integer duration;
     private FilmRating mpa;
+    private List<Director> directors = new ArrayList<>();
     private final Set<Long> likes = new HashSet<>();
     private final Set<Genre> genres = new LinkedHashSet<>();
 

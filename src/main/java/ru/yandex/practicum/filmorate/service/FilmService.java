@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.*;
 
 import java.util.Collection;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -117,6 +118,10 @@ public class FilmService {
             );
         }
 
+        if (newFilm.getDirectors() != null) {
+            film.setDirectors(newFilm.getDirectors());
+        }
+
         filmStorage.updateFilm(film);
 
         log.info("Фильм успешно обновлен: {}", film);
@@ -140,6 +145,16 @@ public class FilmService {
                 .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
                 .limit(count)
                 .toList();*/
+    }
+
+    public Collection<Film> getFilmsByDirector(int directorId, String sortBy) {
+        if (sortBy.equals("likes")) {
+            return filmStorage.getFilmsByDirectorSortedByLikes(directorId);
+        }
+        if (sortBy.equals("year")) {
+            return filmStorage.getFilmsByDirectorSortedByYear(directorId);
+        }
+        throw new ValidationException("sortBy must be 'likes' or 'year'");
     }
 
     private void validateFilm(Film film) {
