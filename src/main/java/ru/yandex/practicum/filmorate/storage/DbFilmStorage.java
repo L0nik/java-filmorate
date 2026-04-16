@@ -77,7 +77,7 @@ public class DbFilmStorage extends DbBaseStorage<Film> implements FilmStorage {
 
         if (newFilm.getDirectors() != null && !newFilm.getDirectors().isEmpty()) {
             jdbc.batchUpdate(
-                    "INSERT INTO film_directors (film_id, director_id) VALUES (?, ?)",
+                    INSERT_FILM_DIRECTOR_QUERY,
                     newFilm.getDirectors(),
                     newFilm.getDirectors().size(),
                     (ps, director) -> {
