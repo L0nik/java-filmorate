@@ -24,6 +24,7 @@ public class FilmService {
     private final FilmRatingStorage ratingStorage;
     private final FilmLikeStorage likeStorage;
     private final FilmGenreStorage filmGenreStorage;
+    private final DirectorStorage directorStorage;
 
     public FilmService(
             @Qualifier("dbFilmStorage") FilmStorage filmStorage,
@@ -31,7 +32,8 @@ public class FilmService {
             GenreStorage genreStorage,
             FilmRatingStorage ratingStorage,
             FilmLikeStorage likeStorage,
-            FilmGenreStorage filmGenreStorage
+            FilmGenreStorage filmGenreStorage,
+            DirectorStorage directorStorage
     ) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
@@ -39,6 +41,7 @@ public class FilmService {
         this.ratingStorage = ratingStorage;
         this.likeStorage = likeStorage;
         this.filmGenreStorage = filmGenreStorage;
+        this.directorStorage = directorStorage;
     }
 
     public Film getFilmById(long id) {
@@ -183,7 +186,19 @@ public class FilmService {
             return Collections.emptyList();
         }
 
-        return filmStorage.searchFilms(query, searchByTitle, searchByDirector);
+        Collection<Film> films = filmStorage.searchFilms(query, searchByTitle, searchByDirector);
+
+        for (Film film : films) {
+            film.getGenres().addAll(
+                    genreStorage.getGenresByFilmId(film.getId())
+            );
+
+            film.getDirectors().addAll(
+                    directorStorage.getDirectorsByFilmId(film.getId())
+            );
+        }
+
+        return films;
     }
 
     private void validateFilm(Film film) {

@@ -53,13 +53,8 @@ public class DbFilmStorage extends DbBaseStorage<Film> implements FilmStorage {
                     "LEFT JOIN directors d ON fd.director_id = d.id " +
                     "WHERE ";
 
-    private final GenreStorage genreStorage;
-    private final DirectorStorage directorStorage;
-
-    public DbFilmStorage(JdbcTemplate jdbc, FilmRowMapper mapper, GenreStorage genreStorage, DirectorStorage directorStorage) {
+    public DbFilmStorage(JdbcTemplate jdbc, FilmRowMapper mapper) {
         super(jdbc, mapper);
-        this.genreStorage = genreStorage;
-        this.directorStorage = directorStorage;
     }
 
     @Override
@@ -211,16 +206,6 @@ public class DbFilmStorage extends DbBaseStorage<Film> implements FilmStorage {
         }
 
         List<Film> films = findMany(sql.toString(), params.toArray());
-
-        for (Film film : films) {
-            film.getGenres().addAll(
-                    genreStorage.getGenresByFilmId(film.getId())
-            );
-
-            film.getDirectors().addAll(
-                    directorStorage.getDirectorsByFilmId(film.getId())
-            );
-        }
 
         return films;
     }
