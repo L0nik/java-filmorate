@@ -21,7 +21,7 @@ public class DbFilmStorage extends DbBaseStorage<Film> implements FilmStorage {
             "LEFT JOIN film_directors AS fd ON f.id = fd.film_id " +
             "LEFT JOIN directors AS d ON fd.director_id = d.id " +
             "WHERE f.id = ?";
-    private static final String GET_ALL_QUERY = "SELECT f.*, r.name AS rating_name, d.id AS director_id, d.name AS director_name FROM films AS f JOIN rating_mpa AS r ON f.rating_id = r.id" +
+    private static final String GET_ALL_QUERY = "SELECT f.*, r.name AS rating_name, d.id AS director_id, d.name AS director_name FROM films AS f JOIN rating_mpa AS r ON f.rating_id = r.id " +
             "LEFT JOIN film_directors AS fd ON f.id = fd.film_id " +
             "LEFT JOIN directors AS d ON fd.director_id = d.id";
     private static final String INSERT_QUERY = "INSERT INTO films (name, description, release_date, duration, rating_id)" +
