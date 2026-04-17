@@ -157,7 +157,7 @@ public class DbFilmStorage extends DbBaseStorage<Film> implements FilmStorage {
                 sql,
                 rs -> {
                     Map<Long, Film> filmsMap = new LinkedHashMap<>();
-                    while(rs.next()) {
+                    while (rs.next()) {
                         Long filmId = rs.getLong("films.id");
                         if (filmsMap.get(filmId) == null) {
                             Film film = mapper.mapRow(rs, rs.getRow());
@@ -168,7 +168,6 @@ public class DbFilmStorage extends DbBaseStorage<Film> implements FilmStorage {
                 },
                 params.toArray()
         );
-        //return findMany(GET_TOP_FILMS_BY_LIKES_QUERY, count);
     }
 
     @Override
