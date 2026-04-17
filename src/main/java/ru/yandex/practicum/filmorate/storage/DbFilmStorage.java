@@ -174,6 +174,10 @@ public class DbFilmStorage extends DbBaseStorage<Film> implements FilmStorage {
     }
 
     @Override
+    public void checkIfFilmExists(long id) {
+        getFilmById(id);
+    }
+
     public Collection<Film> searchFilms(String query, boolean searchByTitle, boolean searchByDirector) {
 
         StringBuilder sql = new StringBuilder(SEARCH_FILMS_SQL);

@@ -20,6 +20,8 @@ public interface FilmStorage {
 
     Collection<Film> getFilmsByDirectorSortedByYear(long directorId);
 
+    void checkIfFilmExists(long id);
+
     Collection<Film> searchFilms(String query, boolean searchByTitle, boolean searchByDirector);
 
 }
