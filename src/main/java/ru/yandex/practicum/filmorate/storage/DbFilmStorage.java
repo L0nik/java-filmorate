@@ -14,22 +14,28 @@ import java.util.*;
 @Slf4j
 public class DbFilmStorage extends DbBaseStorage<Film> implements FilmStorage {
 
-    private static final String GET_BY_ID_QUERY = "SELECT f.*, r.name AS rating_name, d.id AS director_id, d.name AS director_name FROM films AS f " +
+    private static final String GET_BY_ID_QUERY =
+            "SELECT f.*, r.name AS rating_name, d.id AS director_id, d.name AS director_name FROM films AS f " +
             "JOIN rating_mpa AS r ON f.rating_id = r.id " +
             "LEFT JOIN film_directors AS fd ON f.id = fd.film_id " +
             "LEFT JOIN directors AS d ON fd.director_id = d.id " +
             "WHERE f.id = ?";
-    private static final String GET_ALL_QUERY = "SELECT f.*, r.name AS rating_name, d.id AS director_id, d.name AS director_name FROM films AS f JOIN rating_mpa AS r ON f.rating_id = r.id " +
+    private static final String GET_ALL_QUERY =
+            "SELECT f.*, r.name AS rating_name, d.id AS director_id, d.name AS director_name FROM films AS f JOIN rating_mpa AS r ON f.rating_id = r.id " +
             "LEFT JOIN film_directors AS fd ON f.id = fd.film_id " +
             "LEFT JOIN directors AS d ON fd.director_id = d.id";
     private static final String INSERT_QUERY = "INSERT INTO films (name, description, release_date, duration, rating_id)" +
             " VALUES (?, ?, ?, ?, ?)";
-    private static final String UPDATE_QUERY = "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, rating_id = ? WHERE id = ?";
-    private static final String GET_TOP_FILMS_BY_LIKES_QUERY = "SELECT films.*, r.name AS rating_name, top_films_ids.likes_count FROM films INNER JOIN" +
+    private static final String UPDATE_QUERY =
+            "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, rating_id = ? WHERE id = ?";
+    private static final String GET_TOP_FILMS_BY_LIKES_QUERY =
+            "SELECT films.*, r.name AS rating_name, top_films_ids.likes_count FROM films INNER JOIN" +
             " (SELECT f.id AS id, COUNT(fl.user_id) AS likes_count FROM films AS f JOIN film_likes AS fl ON f.id = fl.film_id GROUP BY f.id) AS top_films_ids" +
             " ON films.id = top_films_ids.id" +
             " JOIN rating_mpa AS r ON films.rating_id = r.id" +
-            " ORDER BY top_films_ids.likes_count DESC LIMIT ?";
+            " JOIN film_genre ON films.id = film_genre.film_id" +
+            " WHERE &filter" +
+            " ORDER BY top_films_ids.likes_count DESC";
     private static final String GET_FILMS_BY_DIRECTOR_SORTED_BY_LIKES =
             "SELECT f.*, r.name AS rating_name, d.id AS director_id, d.name AS director_name FROM films AS f " +
                     "JOIN rating_mpa AS r ON f.rating_id = r.id " +
@@ -130,8 +136,39 @@ public class DbFilmStorage extends DbBaseStorage<Film> implements FilmStorage {
     }
 
     @Override
-    public Collection<Film> getTopFilmsByLikes(int count) {
-        return findMany(GET_TOP_FILMS_BY_LIKES_QUERY, count);
+    public Collection<Film> getTopFilmsByLikes(Integer count, Long genreId, Integer year) {
+        String sql = GET_TOP_FILMS_BY_LIKES_QUERY;
+        List<Object> params = new ArrayList<>();
+        StringBuilder filterBuilder = new StringBuilder("true");
+        if (genreId != null) {
+            filterBuilder.append(" OR film_genre.genre_id = ?");
+            params.add(genreId);
+        }
+        if (year != null) {
+            filterBuilder.append(" OR EXTRACT(YEAR FROM films.release_date) = ?");
+            params.add(year);
+        }
+        if (count != null) {
+            sql += " LIMIT ?";
+            params.add(count);
+        }
+        sql = sql.replace("&filter", filterBuilder.toString());
+        return jdbc.query(
+                sql,
+                rs -> {
+                    Map<Long, Film> filmsMap = new LinkedHashMap<>();
+                    while(rs.next()) {
+                        Long filmId = rs.getLong("films.id");
+                        if (filmsMap.get(filmId) == null) {
+                            Film film = mapper.mapRow(rs, rs.getRow());
+                            filmsMap.put(filmId, film);
+                        }
+                    }
+                    return new ArrayList<>(filmsMap.values());
+                },
+                params.toArray()
+        );
+        //return findMany(GET_TOP_FILMS_BY_LIKES_QUERY, count);
     }
 
     @Override
