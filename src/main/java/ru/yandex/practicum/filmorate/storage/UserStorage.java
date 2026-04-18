@@ -20,4 +20,6 @@ public interface UserStorage {
 
     Collection<User> getFriendsOfUser(long userId);
 
+    void deleteUser(long id);
+
 }

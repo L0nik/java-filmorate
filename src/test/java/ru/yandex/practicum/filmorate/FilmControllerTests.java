@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class FilmControllerTests {
-
     private static final String BASE_URL = "http://localhost:8080/films";
     private static HttpClient client;
     private static Gson gson;
@@ -371,6 +370,28 @@ public class FilmControllerTests {
         assertEquals(500, response.statusCode());
     }
 
+    @Test
+    @DisplayName("DELETE /films/{id} - существующий фильм -> 200, затем 404")
+    void deleteShouldRemoveFilmWhenIdExists() throws Exception {
+        Film film = createValidFilm();
+        postValidFilm(film);
+
+        HttpResponse<String> deleteResponse = sendDelete(film.getId());
+
+        assertEquals(200, deleteResponse.statusCode());
+
+        HttpResponse<String> getResponse = sendGet(film.getId());
+        assertEquals(404, getResponse.statusCode());
+    }
+
+    @Test
+    @DisplayName("DELETE /films/{id} - несуществующий фильм -> 404")
+    void deleteShouldReturn404WhenFilmNotExists() throws Exception {
+        HttpResponse<String> response = sendDelete(9999L);
+
+        assertEquals(404, response.statusCode());
+    }
+
     private Film createValidFilm() {
         FilmRating mpa = new FilmRating();
         mpa.setId(2L);
@@ -403,6 +424,24 @@ public class FilmControllerTests {
                 .uri(URI.create(BASE_URL))
                 .header("Content-Type", "application/json")
                 .PUT(HttpRequest.BodyPublishers.ofString(json))
+                .build();
+
+        return client.send(request, HttpResponse.BodyHandlers.ofString());
+    }
+
+    private HttpResponse<String> sendDelete(long filmId) throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + "/" + filmId))
+                .DELETE()
+                .build();
+
+        return client.send(request, HttpResponse.BodyHandlers.ofString());
+    }
+
+    private HttpResponse<String> sendGet(long filmId) throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + "/" + filmId))
+                .GET()
                 .build();
 
         return client.send(request, HttpResponse.BodyHandlers.ofString());

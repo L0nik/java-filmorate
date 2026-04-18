@@ -25,6 +25,7 @@ public class DbFilmStorage extends DbBaseStorage<Film> implements FilmStorage {
     private static final String INSERT_QUERY = "INSERT INTO films (name, description, release_date, duration, rating_id)" +
             " VALUES (?, ?, ?, ?, ?)";
     private static final String UPDATE_QUERY = "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, rating_id = ? WHERE id = ?";
+    private static final String DELETE_QUERY = "DELETE FROM films WHERE id = ?";
     private static final String GET_TOP_FILMS_BY_LIKES_QUERY = "SELECT films.*, r.name AS rating_name, top_films_ids.likes_count FROM films INNER JOIN" +
             " (SELECT f.id AS id, COUNT(fl.user_id) AS likes_count FROM films AS f JOIN film_likes AS fl ON f.id = fl.film_id GROUP BY f.id) AS top_films_ids" +
             " ON films.id = top_films_ids.id" +
@@ -212,6 +213,12 @@ public class DbFilmStorage extends DbBaseStorage<Film> implements FilmStorage {
         List<Film> films = findMany(sql.toString(), params.toArray());
 
         return films;
+    }
+
+    @Override
+    public void deleteFilm(long id) {
+        checkIfFilmExists(id);
+        update(DELETE_QUERY, id);
     }
 
 }

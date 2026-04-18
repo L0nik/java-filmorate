@@ -144,6 +144,11 @@ public class FilmService {
         log.info("Пользователь {} удалил лайк фильма {}", userId, filmId);
     }
 
+    public void deleteFilm(long id) {
+        filmStorage.deleteFilm(id);
+        log.info("Фильм {} удален", id);
+    }
+
     public Collection<Film> getTopFilmsByLikes(int count) {
         return filmStorage.getTopFilmsByLikes(count);
         /*return getAllFilms().stream()
