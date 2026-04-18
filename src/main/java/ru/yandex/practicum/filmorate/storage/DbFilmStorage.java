@@ -29,7 +29,7 @@ public class DbFilmStorage extends DbBaseStorage<Film> implements FilmStorage {
     private static final String UPDATE_QUERY =
             "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, rating_id = ? WHERE id = ?";
     private static final String GET_TOP_FILMS_BY_LIKES_QUERY =
-            "SELECT films.*, r.name AS rating_name, top_films_ids.likes_count FROM films INNER JOIN" +
+            "SELECT films.*, r.name AS rating_name, top_films_ids.likes_count FROM films JOIN" +
             " (SELECT f.id AS id, COUNT(fl.user_id) AS likes_count FROM films AS f JOIN film_likes AS fl ON f.id = fl.film_id GROUP BY f.id) AS top_films_ids" +
             " ON films.id = top_films_ids.id" +
             " JOIN rating_mpa AS r ON films.rating_id = r.id" +
