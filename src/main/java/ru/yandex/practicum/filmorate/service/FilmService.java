@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -144,12 +145,11 @@ public class FilmService {
         log.info("Пользователь {} удалил лайк фильма {}", userId, filmId);
     }
 
-    public Collection<Film> getTopFilmsByLikes(int count) {
-        return filmStorage.getTopFilmsByLikes(count);
-        /*return getAllFilms().stream()
-                .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
-                .limit(count)
-                .toList();*/
+    public Collection<Film> getTopFilmsByLikes(@Nullable Integer count, @Nullable Long genreId, @Nullable Integer year) {
+        if (genreId != null) {
+            genreStorage.checkIfGenreExists(genreId);
+        }
+        return filmStorage.getTopFilmsByLikes(count, genreId, year);
     }
 
     public Collection<Film> getFilmsByDirector(int directorId, String sortBy) {
