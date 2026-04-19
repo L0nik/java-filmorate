@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -64,12 +65,30 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public Collection<Film> getMostPopularFilms(@RequestParam(required = false) Integer count) {
-        log.info("Получен запрос на получение самых популярных фильмов (count = {})", count);
-        if (count == null) {
+    public Collection<Film> getMostPopularFilms(
+            @RequestParam(required = false) Integer count,
+            @RequestParam(required = false) Long genreId,
+            @RequestParam(required = false) Integer year
+    ) {
+        log.info(
+                "Получен запрос на получение самых популярных фильмов (count = {}, genreId = {}, year = {})",
+                count,
+                genreId,
+                year
+        );
+        if (count != null && count < 0) {
+            throw new ValidationException("Параметр count не может быть меньше 0");
+        }
+        if (genreId != null && genreId <= 0) {
+            throw new ValidationException("Параметр genreId должен быть положительным числом");
+        }
+        if (year != null && year <= 0) {
+            throw new ValidationException("Год должен быть положительным числом");
+        }
+        if (count == null && genreId == null && year == null) {
             count = 10;
         }
-        return filmService.getTopFilmsByLikes(count);
+        return filmService.getTopFilmsByLikes(count, genreId, year);
     }
 
     @GetMapping("/director/{directorId}")

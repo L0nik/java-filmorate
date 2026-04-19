@@ -11,4 +11,6 @@ public interface GenreStorage {
     Collection<Genre> getAllGenres();
 
     Collection<Genre> getGenresByFilmId(Long filmId);
+
+    void checkIfGenreExists(long id);
 }

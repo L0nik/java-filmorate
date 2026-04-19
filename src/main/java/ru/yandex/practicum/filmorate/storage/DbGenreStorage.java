@@ -25,6 +25,7 @@ public class DbGenreStorage extends DbBaseStorage<Genre> implements GenreStorage
         super(jdbc, mapper);
     }
 
+    @Override
     public Genre getGenreById(long id) {
         Optional<Genre> genreOpt = findOne(GET_BY_ID_QUERY, id);
         if (genreOpt.isPresent()) {
@@ -36,11 +37,18 @@ public class DbGenreStorage extends DbBaseStorage<Genre> implements GenreStorage
         }
     }
 
+    @Override
     public Collection<Genre> getAllGenres() {
         return findMany(GET_ALL_QUERY);
     }
 
+    @Override
     public Collection<Genre> getGenresByFilmId(Long filmId) {
         return findMany(GET_GENRES_BY_FILM_ID_QUERY, filmId);
+    }
+
+    @Override
+    public void checkIfGenreExists(long id) {
+        getGenreById(id);
     }
 }
