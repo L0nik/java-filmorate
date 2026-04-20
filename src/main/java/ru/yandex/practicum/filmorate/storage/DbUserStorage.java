@@ -19,6 +19,7 @@ public class DbUserStorage extends DbBaseStorage<User> implements UserStorage {
     private static final String INSERT_QUERY = "INSERT INTO users(email, login, name, birthday)" +
             " VALUES (?, ?, ?, ?)";
     private static final String UPDATE_QUERY = "UPDATE users SET email = ?, login = ?, name = ?, birthday = ? WHERE id = ?";
+    private static final String DELETE_QUERY = "DELETE FROM users WHERE id = ?";
     private static final String GET_COMMON_FRIENDS_QUERY = "SELECT DISTINCT users.* FROM friendship AS f1" +
             " JOIN friendship AS f2 ON f1.friend_id = f2.friend_id AND f1.user_id != f2.user_id" +
             " JOIN users ON f2.friend_id = users.id" +
@@ -86,5 +87,11 @@ public class DbUserStorage extends DbBaseStorage<User> implements UserStorage {
     @Override
     public Collection<User> getFriendsOfUser(long userId) {
         return findMany(GET_FRIENDS_OF_USER_QUERY, userId);
+    }
+
+    @Override
+    public void deleteUser(long id) {
+        checkIfUserExists(id);
+        update(DELETE_QUERY, id);
     }
 }

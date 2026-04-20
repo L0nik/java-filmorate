@@ -145,6 +145,11 @@ public class FilmService {
         log.info("Пользователь {} удалил лайк фильма {}", userId, filmId);
     }
 
+    public void deleteFilm(long id) {
+        filmStorage.deleteFilm(id);
+        log.info("Фильм {} удален", id);
+    }
+
     public Collection<Film> getTopFilmsByLikes(@Nullable Integer count, @Nullable Long genreId, @Nullable Integer year) {
         if (genreId != null) {
             genreStorage.checkIfGenreExists(genreId);

@@ -117,6 +117,11 @@ public class UserService {
         return userStorage.getCommonFriends(userId1, userId2);
     }
 
+    public void deleteUser(long id) {
+        userStorage.deleteUser(id);
+        log.info("Пользователь {} удален", id);
+    }
+
     private void validateUser(User user) {
         log.info("Начало валидации пользователя {}", user);
         user.validateEmail();
