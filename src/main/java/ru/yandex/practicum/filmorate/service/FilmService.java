@@ -228,11 +228,6 @@ public class FilmService {
             film.getGenres().addAll(
                     genreStorage.getGenresByFilmId(film.getId())
             );
-
-            film.getDirectors().addAll(
-                    directorStorage.getDirectorsByFilmId(film.getId())
-            );
-
         }
         return commonFilms;
     }
