@@ -4,7 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.EventStorage;
 import ru.yandex.practicum.filmorate.storage.FriendshipStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -16,13 +18,16 @@ public class UserService {
 
     private final UserStorage userStorage;
     private final FriendshipStorage friendshipStorage;
+    private final EventStorage eventStorage;
 
     public UserService(
             @Qualifier("dbUserStorage") UserStorage userStorage,
-            FriendshipStorage friendshipStorage
+            FriendshipStorage friendshipStorage,
+            EventStorage eventStorage
     ) {
         this.userStorage = userStorage;
         this.friendshipStorage = friendshipStorage;
+        this.eventStorage = eventStorage;
     }
 
     public User getUserById(long id) {
@@ -92,8 +97,10 @@ public class UserService {
 
 
     public void addFriend(long userId, long friendId) {
+        userStorage.checkIfUserExists(userId);
         userStorage.checkIfUserExists(friendId);
         friendshipStorage.addFriend(userId, friendId);
+        eventStorage.addEvent(userId, "FRIEND", "ADD", friendId);
         log.info("Пользователь {} добавил в друзья пользователя {}", userId, friendId);
     }
 
@@ -102,6 +109,7 @@ public class UserService {
         userStorage.checkIfUserExists(friendId);
         if (friendshipStorage.checkIfUserHasFriend(userId, friendId)) {
             friendshipStorage.deleteFriend(userId, friendId);
+            eventStorage.addEvent(userId, "FRIEND", "REMOVE", friendId);
             log.info("Пользователь {} удалил из друзей пользователя {}", userId, friendId);
         } else {
             log.info("У пользователя {} нет в друзьях пользователя {}", userId, friendId);
@@ -120,6 +128,11 @@ public class UserService {
     public void deleteUser(long id) {
         userStorage.deleteUser(id);
         log.info("Пользователь {} удален", id);
+    }
+
+    public Collection<Event> getFeed(long id) {
+        userStorage.checkIfUserExists(id);
+        return eventStorage.getFeed(id);
     }
 
     private void validateUser(User user) {
