@@ -45,58 +45,59 @@ public class FeedControllerTests {
     }
 
     @Test
-    @DisplayName("GET /users/{id}/feed - показывает событие добавления в друзья от друга")
-    void getFeedShouldReturnFriendEventsOfFriends() throws Exception {
-        User viewer = createValidUser();
-        User actor = createValidUser();
-        User thirdUser = createValidUser();
+    @DisplayName("GET /users/{id}/feed - показывает события пользователя в порядке создания")
+    void getFeedShouldReturnUserEventsInCreationOrder() throws Exception {
+        User user = createValidUser();
+        User friend = createValidUser();
 
-        postValidUser(viewer);
-        postValidUser(actor);
-        postValidUser(thirdUser);
+        postValidUser(user);
+        postValidUser(friend);
 
-        assertEquals(200, sendAddFriend(viewer.getId(), actor.getId()).statusCode());
-        assertEquals(200, sendAddFriend(actor.getId(), thirdUser.getId()).statusCode());
+        assertEquals(200, sendAddFriend(user.getId(), friend.getId()).statusCode());
+        assertEquals(200, sendDeleteFriend(user.getId(), friend.getId()).statusCode());
 
-        HttpResponse<String> feedResponse = sendGetFeed(viewer.getId());
+        HttpResponse<String> feedResponse = sendGetFeed(user.getId());
         assertEquals(200, feedResponse.statusCode());
 
         JsonArray events = gson.fromJson(feedResponse.body(), JsonArray.class);
-        assertEquals(1, events.size());
+        assertEquals(2, events.size());
 
-        JsonObject event = events.get(0).getAsJsonObject();
-        assertEquals(actor.getId(), event.get("userId").getAsLong());
-        assertEquals("FRIEND", event.get("eventType").getAsString());
-        assertEquals("ADD", event.get("operation").getAsString());
-        assertEquals(thirdUser.getId(), event.get("entityId").getAsLong());
+        JsonObject addEvent = events.get(0).getAsJsonObject();
+        assertEquals(user.getId(), addEvent.get("userId").getAsLong());
+        assertEquals("FRIEND", addEvent.get("eventType").getAsString());
+        assertEquals("ADD", addEvent.get("operation").getAsString());
+        assertEquals(friend.getId(), addEvent.get("entityId").getAsLong());
+
+        JsonObject removeEvent = events.get(1).getAsJsonObject();
+        assertEquals(user.getId(), removeEvent.get("userId").getAsLong());
+        assertEquals("FRIEND", removeEvent.get("eventType").getAsString());
+        assertEquals("REMOVE", removeEvent.get("operation").getAsString());
+        assertEquals(friend.getId(), removeEvent.get("entityId").getAsLong());
     }
 
     @Test
-    @DisplayName("GET /users/{id}/feed - возвращает события лайка и отзыва друга")
+    @DisplayName("GET /users/{id}/feed - возвращает события лайка и отзыва пользователя")
     void getFeedShouldReturnLikeAndReviewEvents() throws Exception {
-        User viewer = createValidUser();
-        User actor = createValidUser();
-        postValidUser(viewer);
-        postValidUser(actor);
+        User user = createValidUser();
+        postValidUser(user);
 
         Film film = createValidFilm();
         HttpResponse<String> filmResponse = sendFilmPost(gson.toJson(film));
         assertEquals(200, filmResponse.statusCode());
         Film createdFilm = gson.fromJson(filmResponse.body(), Film.class);
 
-        assertEquals(200, sendAddFriend(viewer.getId(), actor.getId()).statusCode());
-        assertEquals(200, sendPutLike(createdFilm.getId(), actor.getId()).statusCode());
+        assertEquals(200, sendPutLike(createdFilm.getId(), user.getId()).statusCode());
 
         Review review = new Review();
         review.setContent("good movie");
         review.setIsPositive(true);
-        review.setUserId(actor.getId());
+        review.setUserId(user.getId());
         review.setFilmId(createdFilm.getId());
 
         HttpResponse<String> reviewResponse = sendReviewPost(gson.toJson(review));
         assertEquals(200, reviewResponse.statusCode());
 
-        HttpResponse<String> feedResponse = sendGetFeed(viewer.getId());
+        HttpResponse<String> feedResponse = sendGetFeed(user.getId());
         assertEquals(200, feedResponse.statusCode());
 
         JsonArray events = gson.fromJson(feedResponse.body(), JsonArray.class);
@@ -104,12 +105,12 @@ public class FeedControllerTests {
 
         assertTrue(
                 events.get(0).getAsJsonObject().get("timestamp").getAsLong()
-                        >= events.get(1).getAsJsonObject().get("timestamp").getAsLong()
+                        <= events.get(1).getAsJsonObject().get("timestamp").getAsLong()
         );
 
-        assertEquals("REVIEW", events.get(0).getAsJsonObject().get("eventType").getAsString());
+        assertEquals("LIKE", events.get(0).getAsJsonObject().get("eventType").getAsString());
         assertEquals("ADD", events.get(0).getAsJsonObject().get("operation").getAsString());
-        assertEquals("LIKE", events.get(1).getAsJsonObject().get("eventType").getAsString());
+        assertEquals("REVIEW", events.get(1).getAsJsonObject().get("eventType").getAsString());
         assertEquals("ADD", events.get(1).getAsJsonObject().get("operation").getAsString());
     }
 
@@ -178,6 +179,15 @@ public class FeedControllerTests {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(getUsersUrl() + "/" + userId + "/friends/" + friendId))
                 .PUT(HttpRequest.BodyPublishers.noBody())
+                .build();
+
+        return client.send(request, HttpResponse.BodyHandlers.ofString());
+    }
+
+    private HttpResponse<String> sendDeleteFriend(long userId, long friendId) throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(getUsersUrl() + "/" + userId + "/friends/" + friendId))
+                .DELETE()
                 .build();
 
         return client.send(request, HttpResponse.BodyHandlers.ofString());

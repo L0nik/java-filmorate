@@ -11,10 +11,7 @@ import java.util.Collection;
 public class DbEventStorage extends DbBaseStorage<Event> implements EventStorage {
 
     private static final String GET_FEED_QUERY =
-            "SELECT e.* FROM feed_events AS e " +
-                    "JOIN friendship AS f ON e.user_id = f.friend_id " +
-                    "WHERE f.user_id = ? " +
-                    "ORDER BY e.timestamp DESC, e.event_id DESC";
+            "SELECT * FROM feed_events WHERE user_id = ? ORDER BY event_id ASC";
     private static final String INSERT_EVENT_QUERY =
             "INSERT INTO feed_events (timestamp, user_id, event_type, operation, entity_id) VALUES (?, ?, ?, ?, ?)";
 
