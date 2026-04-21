@@ -59,6 +59,14 @@ public class DbFilmStorage extends DbBaseStorage<Film> implements FilmStorage {
                     "LEFT JOIN film_directors fd ON f.id = fd.film_id " +
                     "LEFT JOIN directors d ON fd.director_id = d.id " +
                     "WHERE ";
+    private static final String GET_COMMON_FILMS_QUERY =
+            "SELECT f.*, r.name AS rating_name, " +
+                    "       (SELECT COUNT(*) FROM film_likes WHERE film_id = f.id) AS likes_count " +
+                    "FROM films f " +
+                    "INNER JOIN rating_mpa r ON f.rating_id = r.id " +
+                    "WHERE f.id IN (SELECT film_id FROM film_likes WHERE user_id = ?) " +
+                    "  AND f.id IN (SELECT film_id FROM film_likes WHERE user_id = ?) " +
+                    "ORDER BY likes_count DESC";
 
     public DbFilmStorage(JdbcTemplate jdbc, FilmRowMapper mapper) {
         super(jdbc, mapper);
@@ -175,7 +183,7 @@ public class DbFilmStorage extends DbBaseStorage<Film> implements FilmStorage {
     public Collection<Film> getFilmsByDirectorSortedByYear(long directorId) {
         Collection<Film> films = findMany(GET_FILMS_BY_DIRECTOR_SORTED_BY_YEAR, directorId);
 
-        films.forEach(film -> {
+            films.forEach(film -> {
             film.setDirectors(loadDirectors(film.getId()));
         });
 
@@ -257,4 +265,16 @@ public class DbFilmStorage extends DbBaseStorage<Film> implements FilmStorage {
         update(DELETE_QUERY, id);
     }
 
+    @Override
+    public Collection<Film> getCommonFilms(long userId, long friendId) {
+       return jdbc.query(GET_COMMON_FILMS_QUERY, rs -> {
+               List<Film> films = new ArrayList<>();
+       while (rs.next()) {
+           Film film = mapper.mapRow(rs, rs.getRow());
+           film.setDirectors(loadDirectors(film.getId()));
+           films.add(film);
+       }
+       return films;
+    }, userId, friendId);
+    }
 }

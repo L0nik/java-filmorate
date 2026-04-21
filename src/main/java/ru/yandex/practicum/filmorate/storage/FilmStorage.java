@@ -27,4 +27,5 @@ public interface FilmStorage {
 
     void deleteFilm(long id);
 
+    Collection<Film> getCommonFilms(long userId, long friendId);
 }

@@ -164,7 +164,7 @@ public class FilmService {
         if (sortBy.equals("year")) {
             return filmStorage.getFilmsByDirectorSortedByYear(directorId);
         }
-        throw new ValidationException("sortBy must be 'likes' or 'year'");
+        throw new ValidationException("sortBy должно быть 'likes' or 'year'");
     }
 
     public Collection<Film> searchFilms(String query, String by) {
@@ -204,6 +204,32 @@ public class FilmService {
         }
 
         return films;
+    }
+
+    public Collection<Film> getCommonFilms(long userId, long friendId) {
+
+        if (userId <= 0) {
+            throw new ValidationException("Некорректный id пользователя: " + userId);
+        }
+        if (friendId <= 0) {
+            throw new ValidationException("Некорректный id пользователя: " + friendId);
+        }
+
+        userStorage.checkIfUserExists(userId);
+        userStorage.checkIfUserExists(friendId);
+
+        Collection<Film> commonFilms = filmStorage.getCommonFilms(userId, friendId);
+
+        if (commonFilms.isEmpty()) {
+            return commonFilms;
+        }
+
+        for (Film film : commonFilms) {
+            film.getGenres().addAll(
+                    genreStorage.getGenresByFilmId(film.getId())
+            );
+        }
+        return commonFilms;
     }
 
     private void validateFilm(Film film) {
