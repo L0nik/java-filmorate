@@ -3,6 +3,8 @@ package ru.yandex.practicum.filmorate.storage;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
+import java.util.Optional;
+import java.util.Set;
 
 public interface UserStorage {
 
@@ -22,4 +24,7 @@ public interface UserStorage {
 
     void deleteUser(long id);
 
+    Optional<Long> findMostSimilarUserId(Long userId);
+
+    Set<Long> getRecommendedFilmIds(Long userId, Long similarUserId);
 }

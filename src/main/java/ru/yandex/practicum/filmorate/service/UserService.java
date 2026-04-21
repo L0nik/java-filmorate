@@ -5,12 +5,17 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.EventStorage;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.FriendshipStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -19,15 +24,18 @@ public class UserService {
     private final UserStorage userStorage;
     private final FriendshipStorage friendshipStorage;
     private final EventStorage eventStorage;
+    private final FilmStorage filmStorage;
 
     public UserService(
             @Qualifier("dbUserStorage") UserStorage userStorage,
             FriendshipStorage friendshipStorage,
-            EventStorage eventStorage
+            EventStorage eventStorage,
+            FilmStorage filmStorage
     ) {
         this.userStorage = userStorage;
         this.friendshipStorage = friendshipStorage;
         this.eventStorage = eventStorage;
+        this.filmStorage = filmStorage;
     }
 
     public User getUserById(long id) {
@@ -133,6 +141,26 @@ public class UserService {
     public Collection<Event> getFeed(long id) {
         userStorage.checkIfUserExists(id);
         return eventStorage.getFeed(id);
+    }
+
+    public List<Film> getRecommendations(Long userId) {
+
+        Optional<Long> similarUserId =
+                userStorage.findMostSimilarUserId(userId);
+
+        if (similarUserId.isEmpty()) {
+            return List.of();
+        }
+
+        Set<Long> filmIds =
+                userStorage.getRecommendedFilmIds(
+                        userId,
+                        similarUserId.get()
+                );
+
+        return filmIds.stream()
+                .map(filmStorage::getFilmById)
+                .toList();
     }
 
     private void validateUser(User user) {

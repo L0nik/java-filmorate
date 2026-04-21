@@ -7,8 +7,7 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.Collection;
-import java.util.Optional;
+import java.util.*;
 
 @Repository("dbUserStorage")
 @Slf4j
@@ -26,6 +25,26 @@ public class DbUserStorage extends DbBaseStorage<User> implements UserStorage {
             " WHERE f1.user_id = ? AND f2.user_id = ?";
     private static final String GET_FRIENDS_OF_USER_QUERY = "SELECT u.* FROM users AS u INNER JOIN friendship AS f" +
             " ON u.id = f.friend_id AND f.user_id = ?";
+    private static final String GET_SIMILAR_USER =
+            "SELECT fl2.user_id " +
+                    "FROM film_likes AS fl1 " +
+                    "JOIN film_likes AS fl2 " +
+                    "ON fl1.user_id != fl2.user_id " +
+                    "AND fl1.film_id = fl2.film_id " +
+                    "WHERE fl1.user_id = ? " +
+                    "GROUP BY fl2.user_id " +
+                    "ORDER BY COUNT(*) DESC " +
+                    "LIMIT 1";
+
+    private static final String GET_RECOMMENDED_FILMS =
+            "SELECT film_id " +
+                    "FROM film_likes " +
+                    "WHERE user_id = ? " +
+                    "AND film_id NOT IN (" +
+                    "    SELECT film_id " +
+                    "    FROM film_likes " +
+                    "    WHERE user_id = ?" +
+                    ")";
 
     public DbUserStorage(JdbcTemplate jdbc, RowMapper<User> mapper) {
         super(jdbc, mapper);
@@ -94,4 +113,26 @@ public class DbUserStorage extends DbBaseStorage<User> implements UserStorage {
         checkIfUserExists(id);
         update(DELETE_QUERY, id);
     }
+
+    @Override
+    public Optional<Long> findMostSimilarUserId(Long userId) {
+        return jdbc.query(
+                GET_SIMILAR_USER,
+                (rs, rowNum) -> rs.getLong(1),
+                userId
+        ).stream().findFirst();
+    }
+
+    @Override
+    public Set<Long> getRecommendedFilmIds(Long userId, Long similarUserId) {
+        List<Long> list = jdbc.query(
+                GET_RECOMMENDED_FILMS,
+                (rs, rowNum) -> rs.getLong(1),
+                similarUserId,
+                userId
+        );
+
+        return new HashSet<>(list);
+    }
+
 }
