@@ -26,6 +26,7 @@ public class FilmService {
     private final FilmLikeStorage likeStorage;
     private final FilmGenreStorage filmGenreStorage;
     private final DirectorStorage directorStorage;
+    private final EventStorage eventStorage;
 
     public FilmService(
             @Qualifier("dbFilmStorage") FilmStorage filmStorage,
@@ -34,7 +35,8 @@ public class FilmService {
             FilmRatingStorage ratingStorage,
             FilmLikeStorage likeStorage,
             FilmGenreStorage filmGenreStorage,
-            DirectorStorage directorStorage
+            DirectorStorage directorStorage,
+            EventStorage eventStorage
     ) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
@@ -43,6 +45,7 @@ public class FilmService {
         this.likeStorage = likeStorage;
         this.filmGenreStorage = filmGenreStorage;
         this.directorStorage = directorStorage;
+        this.eventStorage = eventStorage;
     }
 
     public Film getFilmById(long id) {
@@ -137,11 +140,13 @@ public class FilmService {
 
     public void putLike(long filmId, long userId) {
         likeStorage.putLike(filmId, userId);
+        eventStorage.addEvent(userId, "LIKE", "ADD", filmId);
         log.info("Фильму {} добавлен лайк от пользователя {}", filmId, userId);
     }
 
     public void removeLike(long filmId, long userId) {
         likeStorage.removeLike(filmId, userId);
+        eventStorage.addEvent(userId, "LIKE", "REMOVE", filmId);
         log.info("Пользователь {} удалил лайк фильма {}", userId, filmId);
     }
 
