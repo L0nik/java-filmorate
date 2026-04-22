@@ -166,6 +166,18 @@ public class FilmService {
     }
 
     public Collection<Film> getTopFilmsByLikes(@Nullable Integer count, @Nullable Long genreId, @Nullable Integer year) {
+        if (count != null && count < 0) {
+            throw new ValidationException("Параметр count не может быть меньше 0");
+        }
+        if (genreId != null && genreId <= 0) {
+            throw new ValidationException("Параметр genreId должен быть положительным числом");
+        }
+        if (year != null && year <= 0) {
+            throw new ValidationException("Год должен быть положительным числом");
+        }
+        if (count == null && genreId == null && year == null) {
+            count = 10;
+        }
         if (genreId != null) {
             genreStorage.checkIfGenreExists(genreId);
         }

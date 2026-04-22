@@ -76,18 +76,6 @@ public class FilmController {
                 genreId,
                 year
         );
-        if (count != null && count < 0) {
-            throw new ValidationException("Параметр count не может быть меньше 0");
-        }
-        if (genreId != null && genreId <= 0) {
-            throw new ValidationException("Параметр genreId должен быть положительным числом");
-        }
-        if (year != null && year <= 0) {
-            throw new ValidationException("Год должен быть положительным числом");
-        }
-        if (count == null && genreId == null && year == null) {
-            count = 10;
-        }
         return filmService.getTopFilmsByLikes(count, genreId, year);
     }
 
