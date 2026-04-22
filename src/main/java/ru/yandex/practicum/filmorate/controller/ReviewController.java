@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,7 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @PostMapping
-    public Review addReview(@RequestBody Review newReview) {
+    public Review addReview(@Valid @RequestBody Review newReview) {
         log.info("Получен запрос на добавление отзыва: {}", newReview);
         return reviewService.addReview(newReview);
     }
@@ -47,7 +48,7 @@ public class ReviewController {
     }
 
     @PutMapping
-    public Review updateReview(@RequestBody Review newReview) {
+    public Review updateReview(@Valid @RequestBody Review newReview) {
         log.info("Получен запрос на обновление данных отзыва: {}", newReview);
         return reviewService.updateReview(newReview);
     }
