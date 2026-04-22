@@ -152,11 +152,11 @@ public class DbFilmStorage extends DbBaseStorage<Film> implements FilmStorage {
         List<Object> params = new ArrayList<>();
         StringBuilder filterBuilder = new StringBuilder("true");
         if (genreId != null) {
-            filterBuilder.append(" OR film_genre.genre_id = ?");
+            filterBuilder.append(" AND film_genre.genre_id = ?");
             params.add(genreId);
         }
         if (year != null) {
-            filterBuilder.append(" OR EXTRACT(YEAR FROM films.release_date) = ?");
+            filterBuilder.append(" AND EXTRACT(YEAR FROM films.release_date) = ?");
             params.add(year);
         }
         if (count != null) {

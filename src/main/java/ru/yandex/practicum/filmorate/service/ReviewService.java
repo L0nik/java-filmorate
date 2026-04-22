@@ -35,7 +35,7 @@ public class ReviewService {
             reviews = reviewStorage.getReviewsByFilmId(filmId, count);
         }
         return reviews.stream()
-                .sorted((review1, review2) -> review1.getUseful() - review2.getUseful())
+                .sorted((review1, review2) -> review2.getUseful() - review1.getUseful())
                 .toList();
     }
 
@@ -60,18 +60,6 @@ public class ReviewService {
         if (newReview.getContent() != null) {
             newReview.validateContent();
             review.setContent(newReview.getContent());
-        }
-
-        if (newReview.getUserId() != null) {
-            newReview.validateUserId();
-            userStorage.checkIfUserExists(newReview.getUserId());
-            review.setUserId(newReview.getUserId());
-        }
-
-        if (newReview.getFilmId() != null) {
-            newReview.validateFilmId();
-            filmStorage.checkIfFilmExists(newReview.getFilmId());
-            review.setFilmId(newReview.getFilmId());
         }
 
         if (newReview.getIsPositive() != null) {
