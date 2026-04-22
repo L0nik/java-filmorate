@@ -60,7 +60,6 @@ public class UserService {
     }
 
     public User addUser(User newUser) {
-        validateUser(newUser);
         if (newUser.getName() == null || newUser.getName().isBlank()) {
             newUser.setName(newUser.getLogin());
         }
@@ -79,12 +78,10 @@ public class UserService {
 
         log.info("Начало обновления пользователя: {}", user);
         if (newUser.getEmail() != null) {
-            newUser.validateEmail();
             user.setEmail(newUser.getEmail());
         }
 
         if (newUser.getLogin() != null) {
-            newUser.validateLogin();
             user.setLogin(newUser.getLogin());
         }
 
@@ -95,7 +92,6 @@ public class UserService {
         }
 
         if (newUser.getBirthday() != null) {
-            newUser.validateBirthday();
             user.setBirthday(newUser.getBirthday());
         }
 
@@ -176,13 +172,5 @@ public class UserService {
         });
 
         return films;
-    }
-
-    private void validateUser(User user) {
-        log.info("Начало валидации пользователя {}", user);
-        user.validateEmail();
-        user.validateLogin();
-        user.validateBirthday();
-        log.info("Валидация пользователя завершилась успешно {}", user);
     }
 }

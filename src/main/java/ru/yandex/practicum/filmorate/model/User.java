@@ -1,5 +1,9 @@
 package ru.yandex.practicum.filmorate.model;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -14,29 +18,21 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class User extends BaseModel {
+
+    @NotBlank(message = "Электронная почта не может быть пустой")
+    @Email(message = "Некорректный адрес электронной почты")
     private String email;
+
+    @NotBlank(message = "Логин не может быть пустым")
+    @Pattern(regexp = "^\\S+$", message = "Логин не может содержать пробелы")
     private String login;
+
     private String name;
+
+    @Past(message = "Дата рождения не может быть в будущем")
     private LocalDate birthday;
+
     private final Set<User> friends = new HashSet<>();
-
-    public void validateEmail() {
-        if (email == null || email.isBlank() || !email.contains("@")) {
-            throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ '@'");
-        }
-    }
-
-    public void validateLogin() {
-        if (login == null || login.isBlank() || login.contains(" ")) {
-            throw new ValidationException("Логин не может быть пустым и содержать пробелы");
-        }
-    }
-
-    public void validateBirthday() {
-        if (birthday.isAfter(LocalDate.now())) {
-            throw new ValidationException("Дата рождения не может быть в будущем");
-        }
-    }
 
     public void addFriend(User user) {
         friends.add(user);
