@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 
 @Data
 @EqualsAndHashCode
