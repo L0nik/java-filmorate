@@ -25,7 +25,7 @@ public class FilmControllerTests {
     private static HttpClient client;
     private static Gson gson;
     private static final LocalDate minReleaseDate = Film.getMinReleaseDate();
-    private static final int maxDescriptionLength = Film.getMaxDescriptionLength();
+    private static final int maxDescriptionLength = 200;
 
     @BeforeAll
     static void beforeAll() {
