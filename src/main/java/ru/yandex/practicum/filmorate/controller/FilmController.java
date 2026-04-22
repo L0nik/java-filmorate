@@ -8,8 +8,10 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.FilmSearchField;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/films")
@@ -105,10 +107,18 @@ public class FilmController {
     @GetMapping("/search")
     public Collection<Film> searchFilms(
             @RequestParam String query,
-            @RequestParam Set<FilmSearchField> by
+            @RequestParam String by
     ) {
+
+        Set<FilmSearchField> fields =
+                Arrays.stream(by.split(","))
+                        .map(String::trim)
+                        .map(String::toUpperCase)
+                        .map(FilmSearchField::valueOf)
+                        .collect(Collectors.toSet());
+
         log.info("Получен запрос на поиск фильмов query={}, by={}", query, by);
-        return filmService.searchFilms(query, by);
+        return filmService.searchFilms(query, fields);
     }
 
     @GetMapping("/common")
