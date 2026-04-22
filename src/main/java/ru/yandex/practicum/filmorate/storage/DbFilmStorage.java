@@ -34,7 +34,7 @@ public class DbFilmStorage extends DbBaseStorage<Film> implements FilmStorage {
             " (SELECT f.id AS id, COUNT(fl.user_id) AS likes_count FROM films AS f JOIN film_likes AS fl ON f.id = fl.film_id GROUP BY f.id) AS top_films_ids" +
             " ON films.id = top_films_ids.id" +
             " JOIN rating_mpa AS r ON films.rating_id = r.id" +
-            " JOIN film_genre ON films.id = film_genre.film_id" +
+            " LEFT JOIN film_genre ON films.id = film_genre.film_id" +
             " WHERE &filter" +
             " ORDER BY top_films_ids.likes_count DESC";
     private static final String GET_FILMS_BY_DIRECTOR_SORTED_BY_LIKES =
@@ -123,6 +123,7 @@ public class DbFilmStorage extends DbBaseStorage<Film> implements FilmStorage {
                 newFilm.getMpa().getId(),
                 newFilm.getId()
         );
+
         delete(DELETE_FILM_DIRECTORS_QUERY, newFilm.getId());
 
         if (newFilm.getDirectors() != null && !newFilm.getDirectors().isEmpty()) {
@@ -136,6 +137,7 @@ public class DbFilmStorage extends DbBaseStorage<Film> implements FilmStorage {
                     }
             );
         }
+
         log.info("Обновлен фильм: {}", newFilm);
     }
 

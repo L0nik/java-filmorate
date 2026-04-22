@@ -59,7 +59,13 @@ public class FilmService {
     }
 
     public Collection<Film> getAllFilms() {
-        return filmStorage.getAllFilms();
+        Collection<Film> films = filmStorage.getAllFilms();
+        films.forEach(
+                film -> film.addGenres(
+                        genreStorage.getGenresByFilmId(film.getId())
+                )
+        );
+        return films;
     }
 
     public Film addFilm(Film newFilm) {
@@ -82,7 +88,7 @@ public class FilmService {
                     newFilm.getGenres().stream().map(Genre::getId).toList()
             );
         }
-        return newFilm;
+        return getFilmById(newFilm.getId());
     }
 
     public Film updateFilm(Film newFilm) {
@@ -120,7 +126,7 @@ public class FilmService {
             film.setMpa(ratingStorage.getRatingById(newFilm.getMpa().getId()));
         }
 
-        if (newFilm.getGenres() != null && !newFilm.getGenres().isEmpty()) {
+        if (newFilm.getGenres() != null) {
             filmGenreStorage.updateGenresOfFilm(
                     newFilm.getId(),
                     newFilm.getGenres().stream().map(Genre::getId).toList()
@@ -135,16 +141,20 @@ public class FilmService {
 
         log.info("Фильм успешно обновлен: {}", film);
 
-        return film;
+        return getFilmById(film.getId());
     }
 
     public void putLike(long filmId, long userId) {
+        filmStorage.checkIfFilmExists(filmId);
+        userStorage.checkIfUserExists(userId);
         likeStorage.putLike(filmId, userId);
         eventStorage.addEvent(userId, "LIKE", "ADD", filmId);
         log.info("Фильму {} добавлен лайк от пользователя {}", filmId, userId);
     }
 
     public void removeLike(long filmId, long userId) {
+        filmStorage.checkIfFilmExists(filmId);
+        userStorage.checkIfUserExists(userId);
         likeStorage.removeLike(filmId, userId);
         eventStorage.addEvent(userId, "LIKE", "REMOVE", filmId);
         log.info("Пользователь {} удалил лайк фильма {}", userId, filmId);
@@ -159,7 +169,13 @@ public class FilmService {
         if (genreId != null) {
             genreStorage.checkIfGenreExists(genreId);
         }
-        return filmStorage.getTopFilmsByLikes(count, genreId, year);
+        Collection<Film> films = filmStorage.getTopFilmsByLikes(count, genreId, year);
+        films.forEach(
+                film -> film.addGenres(
+                        genreStorage.getGenresByFilmId(film.getId())
+                )
+        );
+        return films;
     }
 
     public Collection<Film> getFilmsByDirector(int directorId, String sortBy) {
