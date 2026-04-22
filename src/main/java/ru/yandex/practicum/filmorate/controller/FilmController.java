@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
