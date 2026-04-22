@@ -6,9 +6,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.FilmSearchField;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/films")
@@ -94,8 +98,11 @@ public class FilmController {
             @RequestParam String query,
             @RequestParam String by
     ) {
+
+        Set<FilmSearchField> fields = parseSearchFields(by);
+
         log.info("Получен запрос на поиск фильмов query={}, by={}", query, by);
-        return filmService.searchFilms(query, by);
+        return filmService.searchFilms(query, fields);
     }
 
     @GetMapping("/common")
@@ -105,4 +112,13 @@ public class FilmController {
         log.info("Получен запрос на получение общих фильмов пользователей {} и {}", userId, friendId);
         return filmService.getCommonFilms(userId, friendId);
     }
+
+    private Set<FilmSearchField> parseSearchFields(String by) {
+        return Arrays.stream(by.split(","))
+                .map(String::trim)
+                .map(String::toUpperCase)
+                .map(FilmSearchField::valueOf)
+                .collect(Collectors.toSet());
+    }
+
 }
