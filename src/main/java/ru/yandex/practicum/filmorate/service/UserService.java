@@ -148,6 +148,12 @@ public class UserService {
 
     public List<Film> getRecommendations(Long userId) {
 
+        if (userId == null || userId <= 0) {
+            throw new ValidationException("Некорректный userId");
+        }
+
+        userStorage.checkIfUserExists(userId);
+
         Optional<Long> similarUserId =
                 userStorage.findMostSimilarUserId(userId);
 
