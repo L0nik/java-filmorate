@@ -18,7 +18,6 @@ import java.util.Collection;
 @RequiredArgsConstructor
 public class ReviewService {
     private final ReviewStorage reviewStorage;
-    private final ReviewReactionStorage reactionStorage;
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
     private final EventStorage eventStorage;
