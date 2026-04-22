@@ -101,12 +101,6 @@ public class DbReviewStorage extends DbBaseStorage<Review> implements ReviewStor
         return reviews;
     }
 
-    @Override
-    public void checkIfReviewExists(long id) {
-        log.info("Storage: проверка существования отзыва с id={}", id);
-        getReviewById(id);
-    }
-
     private int getReviewUsefulness(long reviewId) {
         List<Integer> usefulList = jdbc.query(
                 COUNT_REVIEW_USEFULNESS_QUERY,
