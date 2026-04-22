@@ -5,9 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.FilmSearchField;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.Collection;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/films")
@@ -103,7 +105,7 @@ public class FilmController {
     @GetMapping("/search")
     public Collection<Film> searchFilms(
             @RequestParam String query,
-            @RequestParam String by
+            @RequestParam Set<FilmSearchField> by
     ) {
         log.info("Получен запрос на поиск фильмов query={}, by={}", query, by);
         return filmService.searchFilms(query, by);

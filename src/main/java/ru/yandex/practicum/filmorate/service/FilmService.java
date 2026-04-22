@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.FilmLike;
+import ru.yandex.practicum.filmorate.model.FilmSearchField;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.*;
 
@@ -196,25 +197,18 @@ public class FilmService {
         return films;
     }
 
-    public Collection<Film> searchFilms(String query, String by) {
+    public Collection<Film> searchFilms(String query, Set<FilmSearchField> fields) {
 
         if (query == null || query.isBlank()) {
             return Collections.emptyList();
         }
 
-        if (by == null || by.isBlank()) {
+        if (fields == null || fields.isEmpty()) {
             return Collections.emptyList();
         }
 
-        String[] fields = by.toLowerCase().split(",");
-        Set<String> searchFields = new HashSet<>();
-
-        for (String field : fields) {
-            searchFields.add(field.trim());
-        }
-
-        boolean searchByTitle = searchFields.contains("title");
-        boolean searchByDirector = searchFields.contains("director");
+        boolean searchByTitle = fields.contains(FilmSearchField.TITLE);
+        boolean searchByDirector = fields.contains(FilmSearchField.DIRECTOR);
 
         if (!searchByTitle && !searchByDirector) {
             return Collections.emptyList();
