@@ -55,16 +55,16 @@ public class FilmService {
                 .toList();
         film.addLikes(likes);
         film.addGenres(genreStorage.getGenresByFilmId(id));
+        film.setDirectors(directorStorage.getDirectorsByFilmId(id));
         return film;
     }
 
     public Collection<Film> getAllFilms() {
         Collection<Film> films = filmStorage.getAllFilms();
-        films.forEach(
-                film -> film.addGenres(
-                        genreStorage.getGenresByFilmId(film.getId())
-                )
-        );
+        films.forEach(film -> {
+                    film.addGenres(genreStorage.getGenresByFilmId(film.getId()));
+                    film.setDirectors(directorStorage.getDirectorsByFilmId(film.getId()));
+                });
         return films;
     }
 
@@ -170,22 +170,30 @@ public class FilmService {
             genreStorage.checkIfGenreExists(genreId);
         }
         Collection<Film> films = filmStorage.getTopFilmsByLikes(count, genreId, year);
-        films.forEach(
-                film -> film.addGenres(
-                        genreStorage.getGenresByFilmId(film.getId())
-                )
-        );
+        films.forEach(film -> {
+            film.addGenres(genreStorage.getGenresByFilmId(film.getId()));
+            film.setDirectors(directorStorage.getDirectorsByFilmId(film.getId()));
+        });
         return films;
     }
 
     public Collection<Film> getFilmsByDirector(int directorId, String sortBy) {
+        directorStorage.checkIfDirectorExists(directorId);
+        Collection<Film> films;
         if (sortBy.equals("likes")) {
-            return filmStorage.getFilmsByDirectorSortedByLikes(directorId);
+            films = filmStorage.getFilmsByDirectorSortedByLikes(directorId);
+        } else if (sortBy.equals("year")) {
+            films = filmStorage.getFilmsByDirectorSortedByYear(directorId);
+        } else {
+            throw new ValidationException("sortBy должно быть 'likes' or 'year'");
         }
-        if (sortBy.equals("year")) {
-            return filmStorage.getFilmsByDirectorSortedByYear(directorId);
+
+        for (Film film : films) {
+            film.addGenres(genreStorage.getGenresByFilmId(film.getId()));
+            film.setDirectors(directorStorage.getDirectorsByFilmId(film.getId()));
         }
-        throw new ValidationException("sortBy должно быть 'likes' or 'year'");
+
+        return films;
     }
 
     public Collection<Film> searchFilms(String query, String by) {
@@ -245,11 +253,11 @@ public class FilmService {
             return commonFilms;
         }
 
-        for (Film film : commonFilms) {
-            film.getGenres().addAll(
-                    genreStorage.getGenresByFilmId(film.getId())
-            );
-        }
+        commonFilms.forEach(film -> {
+            film.addGenres(genreStorage.getGenresByFilmId(film.getId()));
+            film.setDirectors(directorStorage.getDirectorsByFilmId(film.getId()));
+        });
+
         return commonFilms;
     }
 

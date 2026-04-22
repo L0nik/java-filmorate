@@ -183,24 +183,12 @@ public class DbFilmStorage extends DbBaseStorage<Film> implements FilmStorage {
 
     @Override
     public Collection<Film> getFilmsByDirectorSortedByYear(long directorId) {
-        Collection<Film> films = findMany(GET_FILMS_BY_DIRECTOR_SORTED_BY_YEAR, directorId);
-
-            films.forEach(film -> {
-            film.setDirectors(loadDirectors(film.getId()));
-        });
-
-        return films;
+        return findMany(GET_FILMS_BY_DIRECTOR_SORTED_BY_YEAR, directorId);
     }
 
     @Override
     public Collection<Film> getFilmsByDirectorSortedByLikes(long directorId) {
-        Collection<Film> films = findMany(GET_FILMS_BY_DIRECTOR_SORTED_BY_LIKES, directorId);
-
-        films.forEach(film -> {
-            film.setDirectors(loadDirectors(film.getId()));
-        });
-
-        return films;
+        return findMany(GET_FILMS_BY_DIRECTOR_SORTED_BY_LIKES, directorId);
     }
 
     protected void delete(String query, Object... params) {
@@ -273,7 +261,6 @@ public class DbFilmStorage extends DbBaseStorage<Film> implements FilmStorage {
                List<Film> films = new ArrayList<>();
        while (rs.next()) {
            Film film = mapper.mapRow(rs, rs.getRow());
-           film.setDirectors(loadDirectors(film.getId()));
            films.add(film);
        }
        return films;
