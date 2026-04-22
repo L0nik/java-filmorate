@@ -7,10 +7,7 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.EventStorage;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.FriendshipStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.*;
 
 import java.util.Collection;
 import java.util.List;
@@ -25,17 +22,23 @@ public class UserService {
     private final FriendshipStorage friendshipStorage;
     private final EventStorage eventStorage;
     private final FilmStorage filmStorage;
+    private final GenreStorage genreStorage;
+    private final DirectorStorage directorStorage;
 
     public UserService(
             @Qualifier("dbUserStorage") UserStorage userStorage,
             FriendshipStorage friendshipStorage,
             EventStorage eventStorage,
-            FilmStorage filmStorage
+            FilmStorage filmStorage,
+            GenreStorage genreStorage,
+            DirectorStorage directorStorage
     ) {
         this.userStorage = userStorage;
         this.friendshipStorage = friendshipStorage;
         this.eventStorage = eventStorage;
         this.filmStorage = filmStorage;
+        this.genreStorage = genreStorage;
+        this.directorStorage = directorStorage;
     }
 
     public User getUserById(long id) {
@@ -158,9 +161,15 @@ public class UserService {
                         similarUserId.get()
                 );
 
-        return filmIds.stream()
+        List<Film> films = filmIds.stream()
                 .map(filmStorage::getFilmById)
                 .toList();
+        films.forEach(film -> {
+            film.addGenres(genreStorage.getGenresByFilmId(film.getId()));
+            film.setDirectors(directorStorage.getDirectorsByFilmId(film.getId()));
+        });
+
+        return films;
     }
 
     private void validateUser(User user) {
