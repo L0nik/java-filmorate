@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -110,12 +111,7 @@ public class FilmController {
             @RequestParam String by
     ) {
 
-        Set<FilmSearchField> fields =
-                Arrays.stream(by.split(","))
-                        .map(String::trim)
-                        .map(String::toUpperCase)
-                        .map(FilmSearchField::valueOf)
-                        .collect(Collectors.toSet());
+        Set<FilmSearchField> fields = parseSearchFields(by);
 
         log.info("Получен запрос на поиск фильмов query={}, by={}", query, by);
         return filmService.searchFilms(query, fields);
@@ -128,4 +124,13 @@ public class FilmController {
         log.info("Получен запрос на получение общих фильмов пользователей {} и {}", userId, friendId);
         return filmService.getCommonFilms(userId, friendId);
     }
+
+    private Set<FilmSearchField> parseSearchFields(String by) {
+        return Arrays.stream(by.split(","))
+                .map(String::trim)
+                .map(String::toUpperCase)
+                .map(FilmSearchField::valueOf)
+                .collect(Collectors.toSet());
+    }
+
 }
