@@ -69,7 +69,6 @@ public class FilmService {
     }
 
     public Film addFilm(Film newFilm) {
-        validateFilm(newFilm);
         if (newFilm.getMpa() != null) {
             newFilm.setMpa(ratingStorage.getRatingById(newFilm.getMpa().getId()));
         }
@@ -103,22 +102,18 @@ public class FilmService {
 
         log.info("Начало обновления фильма: {}", film);
         if (newFilm.getName() != null) {
-            newFilm.validateName();
             film.setName(newFilm.getName());
         }
 
         if (newFilm.getDescription() != null) {
-            newFilm.validateDescription();
             film.setDescription(newFilm.getDescription());
         }
 
         if (newFilm.getReleaseDate() != null) {
-            newFilm.validateReleaseDate();
             film.setReleaseDate(newFilm.getReleaseDate());
         }
 
         if (newFilm.getDuration() != null) {
-            newFilm.validateDuration();
             film.setDuration(newFilm.getDuration());
         }
 
@@ -271,14 +266,5 @@ public class FilmService {
         });
 
         return commonFilms;
-    }
-
-    private void validateFilm(Film film) {
-        log.info("Начало валидации фильма {}", film);
-        film.validateName();
-        film.validateDescription();
-        film.validateReleaseDate();
-        film.validateDuration();
-        log.info("Валидация фильма завершилась успешно {}", film);
     }
 }

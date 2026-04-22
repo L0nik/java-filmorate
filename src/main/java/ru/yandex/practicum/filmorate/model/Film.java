@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -14,45 +15,32 @@ import java.util.*;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class Film extends BaseModel {
+
+    @NotBlank(message = "Название не может быть пустым")
     private String name;
+
+    @NotNull(message = "Отсутствует описание фильма")
+    @Size(max = 200, message = "Максимальная длина описания — 200 символов")
     private String description;
+
+    @NotNull(message = "Не указана дата релиза")
     private LocalDate releaseDate;
+
+    @NotNull(message = "Не указана продолжительность фильма")
+    @Positive(message = "Продолжительность фильма должна быть положительным числом")
     private Integer duration;
+
     private FilmRating mpa;
     private Collection<Director> directors = new ArrayList<>();
     private final Set<Long> likes = new HashSet<>();
     private final Set<Genre> genres = new LinkedHashSet<>();
 
     @Getter
-    private static final int maxDescriptionLength = 200;
-
-    @Getter
     private static final LocalDate minReleaseDate = LocalDate.of(1895, 12, 28);
 
-    public void validateName()  {
-        if (name == null || name.isBlank()) {
-            throw new ValidationException("Название не может быть пустым");
-        }
-    }
-
-    public void validateDescription() {
-        if (description != null && description.length() > maxDescriptionLength) {
-            throw new ValidationException(String.format("Максимальная длина описания — %d символов", maxDescriptionLength));
-        }
-    }
-
-    public void validateReleaseDate() {
-        if (releaseDate != null && releaseDate.isBefore(minReleaseDate)) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-            String message = String.format("Дата релиза — не раньше %s", minReleaseDate.format(formatter));
-            throw new ValidationException(message);
-        }
-    }
-
-    public void validateDuration() {
-        if (duration != null && duration <= 0) {
-            throw new ValidationException("Продолжительность фильма должна быть положительным числом");
-        }
+    @AssertTrue(message = "Дата релиза — не раньше 28.12.1895")
+    public boolean isValidReleaseDate() {
+        return !(releaseDate != null && releaseDate.isBefore(minReleaseDate));
     }
 
     public void putLike(long userId) {
