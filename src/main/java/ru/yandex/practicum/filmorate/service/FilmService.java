@@ -249,10 +249,6 @@ public class FilmService {
 
         Collection<Film> commonFilms = filmStorage.getCommonFilms(userId, friendId);
 
-        if (commonFilms.isEmpty()) {
-            return commonFilms;
-        }
-
         commonFilms.forEach(film -> {
             film.addGenres(genreStorage.getGenresByFilmId(film.getId()));
             film.setDirectors(directorStorage.getDirectorsByFilmId(film.getId()));

@@ -36,6 +36,8 @@ public class DirectorService {
             throw new ValidationException(errorMessage);
         }
 
+        directorStorage.checkIfDirectorExists(newDirector.getId());
+
         Director director = directorStorage.getDirectorById(newDirector.getId());
 
         log.info("Начало обновления режиссера: {}", director);
