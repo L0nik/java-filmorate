@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
+@Slf4j
 public class DbBaseStorage<T> {
 
     protected final JdbcTemplate jdbc;
@@ -34,7 +36,7 @@ public class DbBaseStorage<T> {
     protected void update(String query, Object... params) {
         int rowsUpdated = jdbc.update(query, params);
         if (rowsUpdated == 0) {
-            throw new InternalServerException("Не удалось обновить данные");
+            log.info("DbBaseStorage: ни одной строки не изменено");
         }
     }
 
@@ -59,4 +61,5 @@ public class DbBaseStorage<T> {
             throw new InternalServerException("Не удалось сохранить данные");
         }
     }
+
 }

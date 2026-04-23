@@ -359,6 +359,28 @@ public class UserControllerTests {
         assertEquals(500, response.statusCode());
     }
 
+    @Test
+    @DisplayName("DELETE /users/{id} - существующий пользователь -> 200, затем 404")
+    void deleteShouldRemoveUserWhenIdExists() throws Exception {
+        User user = createValidUser();
+        postValidUser(user);
+
+        HttpResponse<String> deleteResponse = sendDelete(user.getId());
+
+        assertEquals(200, deleteResponse.statusCode());
+
+        HttpResponse<String> getResponse = sendGet(user.getId());
+        assertEquals(404, getResponse.statusCode());
+    }
+
+    @Test
+    @DisplayName("DELETE /users/{id} - несуществующий пользователь -> 404")
+    void deleteShouldReturn404WhenUserNotExists() throws Exception {
+        HttpResponse<String> response = sendDelete(9999L);
+
+        assertEquals(404, response.statusCode());
+    }
+
     private User createValidUser() {
         userCount++;
         User user = new User();
@@ -387,6 +409,24 @@ public class UserControllerTests {
                 .uri(URI.create(BASE_URL))
                 .header("Content-Type", "application/json")
                 .PUT(HttpRequest.BodyPublishers.ofString(json))
+                .build();
+
+        return client.send(request, HttpResponse.BodyHandlers.ofString());
+    }
+
+    private HttpResponse<String> sendDelete(long userId) throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + "/" + userId))
+                .DELETE()
+                .build();
+
+        return client.send(request, HttpResponse.BodyHandlers.ofString());
+    }
+
+    private HttpResponse<String> sendGet(long userId) throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + "/" + userId))
+                .GET()
                 .build();
 
         return client.send(request, HttpResponse.BodyHandlers.ofString());

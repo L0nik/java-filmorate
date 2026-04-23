@@ -1,12 +1,17 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.FilmSearchField;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/films")
@@ -16,13 +21,13 @@ public class FilmController {
     private final FilmService filmService;
 
     @PostMapping
-    public Film addFilm(@RequestBody Film newFilm) {
+    public Film addFilm(@Valid @RequestBody Film newFilm) {
         log.info("Получен запрос на добавление фильма: {}", newFilm);
         return filmService.addFilm(newFilm);
     }
 
     @PutMapping
-    public Film updateFilm(@RequestBody Film newFilm) {
+    public Film updateFilm(@Valid @RequestBody Film newFilm) {
         log.info("Получен запрос на обновление фильма: {}", newFilm);
         return filmService.updateFilm(newFilm);
     }
@@ -37,6 +42,12 @@ public class FilmController {
     public Film getFilmById(@PathVariable long id) {
         log.info("Получен запрос на получение фильма по id {}", id);
         return filmService.getFilmById(id);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteFilm(@PathVariable long id) {
+        log.info("Получен запрос на удаление фильма по id {}", id);
+        filmService.deleteFilm(id);
     }
 
     @PutMapping("/{id}/like/{userId}")
@@ -58,11 +69,55 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public Collection<Film> getMostPopularFilms(@RequestParam(required = false) Integer count) {
-        log.info("Получен запрос на получение самых популярных фильмов (count = {})", count);
-        if (count == null) {
-            count = 10;
-        }
-        return filmService.getTopFilmsByLikes(count);
+    public Collection<Film> getMostPopularFilms(
+            @RequestParam(required = false) Integer count,
+            @RequestParam(required = false) Long genreId,
+            @RequestParam(required = false) Integer year
+    ) {
+        log.info(
+                "Получен запрос на получение самых популярных фильмов (count = {}, genreId = {}, year = {})",
+                count,
+                genreId,
+                year
+        );
+        return filmService.getTopFilmsByLikes(count, genreId, year);
     }
+
+    @GetMapping("/director/{directorId}")
+    public Collection<Film> getFilmsByDirector(
+            @PathVariable int directorId,
+            @RequestParam String sortBy
+    ) {
+        log.info("Получен запрос на получение фильмов режиссёра {} с сортировкой {}", directorId, sortBy);
+        return filmService.getFilmsByDirector(directorId, sortBy);
+    }
+
+    @GetMapping("/search")
+    public Collection<Film> searchFilms(
+            @RequestParam String query,
+            @RequestParam String by
+    ) {
+
+        Set<FilmSearchField> fields = parseSearchFields(by);
+
+        log.info("Получен запрос на поиск фильмов query={}, by={}", query, by);
+        return filmService.searchFilms(query, fields);
+    }
+
+    @GetMapping("/common")
+    public Collection<Film> getCommonFilms(
+            @RequestParam long userId,
+            @RequestParam long friendId) {
+        log.info("Получен запрос на получение общих фильмов пользователей {} и {}", userId, friendId);
+        return filmService.getCommonFilms(userId, friendId);
+    }
+
+    private Set<FilmSearchField> parseSearchFields(String by) {
+        return Arrays.stream(by.split(","))
+                .map(String::trim)
+                .map(String::toUpperCase)
+                .map(FilmSearchField::valueOf)
+                .collect(Collectors.toSet());
+    }
+
 }

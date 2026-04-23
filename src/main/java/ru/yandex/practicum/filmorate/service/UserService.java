@@ -4,11 +4,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.EventOperation;
+import ru.yandex.practicum.filmorate.model.EventType;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.FriendshipStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.*;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -16,13 +22,25 @@ public class UserService {
 
     private final UserStorage userStorage;
     private final FriendshipStorage friendshipStorage;
+    private final EventStorage eventStorage;
+    private final FilmStorage filmStorage;
+    private final GenreStorage genreStorage;
+    private final DirectorStorage directorStorage;
 
     public UserService(
             @Qualifier("dbUserStorage") UserStorage userStorage,
-            FriendshipStorage friendshipStorage
+            FriendshipStorage friendshipStorage,
+            EventStorage eventStorage,
+            FilmStorage filmStorage,
+            GenreStorage genreStorage,
+            DirectorStorage directorStorage
     ) {
         this.userStorage = userStorage;
         this.friendshipStorage = friendshipStorage;
+        this.eventStorage = eventStorage;
+        this.filmStorage = filmStorage;
+        this.genreStorage = genreStorage;
+        this.directorStorage = directorStorage;
     }
 
     public User getUserById(long id) {
@@ -44,7 +62,6 @@ public class UserService {
     }
 
     public User addUser(User newUser) {
-        validateUser(newUser);
         if (newUser.getName() == null || newUser.getName().isBlank()) {
             newUser.setName(newUser.getLogin());
         }
@@ -63,12 +80,10 @@ public class UserService {
 
         log.info("Начало обновления пользователя: {}", user);
         if (newUser.getEmail() != null) {
-            newUser.validateEmail();
             user.setEmail(newUser.getEmail());
         }
 
         if (newUser.getLogin() != null) {
-            newUser.validateLogin();
             user.setLogin(newUser.getLogin());
         }
 
@@ -79,7 +94,6 @@ public class UserService {
         }
 
         if (newUser.getBirthday() != null) {
-            newUser.validateBirthday();
             user.setBirthday(newUser.getBirthday());
         }
 
@@ -92,8 +106,10 @@ public class UserService {
 
 
     public void addFriend(long userId, long friendId) {
+        userStorage.checkIfUserExists(userId);
         userStorage.checkIfUserExists(friendId);
         friendshipStorage.addFriend(userId, friendId);
+        eventStorage.addEvent(userId, EventType.FRIEND, EventOperation.ADD, friendId);
         log.info("Пользователь {} добавил в друзья пользователя {}", userId, friendId);
     }
 
@@ -102,6 +118,7 @@ public class UserService {
         userStorage.checkIfUserExists(friendId);
         if (friendshipStorage.checkIfUserHasFriend(userId, friendId)) {
             friendshipStorage.deleteFriend(userId, friendId);
+            eventStorage.addEvent(userId, EventType.FRIEND, EventOperation.REMOVE, friendId);
             log.info("Пользователь {} удалил из друзей пользователя {}", userId, friendId);
         } else {
             log.info("У пользователя {} нет в друзьях пользователя {}", userId, friendId);
@@ -117,11 +134,45 @@ public class UserService {
         return userStorage.getCommonFriends(userId1, userId2);
     }
 
-    private void validateUser(User user) {
-        log.info("Начало валидации пользователя {}", user);
-        user.validateEmail();
-        user.validateLogin();
-        user.validateBirthday();
-        log.info("Валидация пользователя завершилась успешно {}", user);
+    public void deleteUser(long id) {
+        userStorage.deleteUser(id);
+        log.info("Пользователь {} удален", id);
+    }
+
+    public Collection<Event> getFeed(long id) {
+        userStorage.checkIfUserExists(id);
+        return eventStorage.getFeed(id);
+    }
+
+    public List<Film> getRecommendations(Long userId) {
+
+        if (userId == null || userId <= 0) {
+            throw new ValidationException("Некорректный userId");
+        }
+
+        userStorage.checkIfUserExists(userId);
+
+        Optional<Long> similarUserId =
+                userStorage.findMostSimilarUserId(userId);
+
+        if (similarUserId.isEmpty()) {
+            return List.of();
+        }
+
+        Set<Long> filmIds =
+                userStorage.getRecommendedFilmIds(
+                        userId,
+                        similarUserId.get()
+                );
+
+        List<Film> films = filmIds.stream()
+                .map(filmStorage::getFilmById)
+                .toList();
+        films.forEach(film -> {
+            film.addGenres(genreStorage.getGenresByFilmId(film.getId()));
+            film.setDirectors(directorStorage.getDirectorsByFilmId(film.getId()));
+        });
+
+        return films;
     }
 }
