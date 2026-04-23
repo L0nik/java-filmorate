@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.EventOperation;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.FilmLike;
 import ru.yandex.practicum.filmorate.model.FilmSearchField;
@@ -143,7 +145,7 @@ public class FilmService {
         filmStorage.checkIfFilmExists(filmId);
         userStorage.checkIfUserExists(userId);
         likeStorage.putLike(filmId, userId);
-        eventStorage.addEvent(userId, "LIKE", "ADD", filmId);
+        eventStorage.addEvent(userId, EventType.LIKE, EventOperation.ADD, filmId);
         log.info("Фильму {} добавлен лайк от пользователя {}", filmId, userId);
     }
 
@@ -151,7 +153,7 @@ public class FilmService {
         filmStorage.checkIfFilmExists(filmId);
         userStorage.checkIfUserExists(userId);
         likeStorage.removeLike(filmId, userId);
-        eventStorage.addEvent(userId, "LIKE", "REMOVE", filmId);
+        eventStorage.addEvent(userId, EventType.LIKE, EventOperation.REMOVE, filmId);
         log.info("Пользователь {} удалил лайк фильма {}", userId, filmId);
     }
 
