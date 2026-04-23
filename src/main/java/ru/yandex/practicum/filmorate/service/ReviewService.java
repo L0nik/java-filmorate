@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.EventOperation;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.EventStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
@@ -41,7 +43,7 @@ public class ReviewService {
         userStorage.checkIfUserExists(newReview.getUserId());
         filmStorage.checkIfFilmExists(newReview.getFilmId());
         Review review = reviewStorage.addReview(newReview);
-        eventStorage.addEvent(review.getUserId(), "REVIEW", "ADD", review.getReviewId());
+        eventStorage.addEvent(review.getUserId(), EventType.REVIEW, EventOperation.ADD, review.getReviewId());
         return review;
     }
 
@@ -65,7 +67,7 @@ public class ReviewService {
         }
 
         reviewStorage.updateReview(review);
-        eventStorage.addEvent(review.getUserId(), "REVIEW", "UPDATE", review.getReviewId());
+        eventStorage.addEvent(review.getUserId(), EventType.REVIEW, EventOperation.UPDATE, review.getReviewId());
 
         log.info("Отзыв успешно обновлен: {}", review);
 
@@ -75,6 +77,6 @@ public class ReviewService {
     public void deleteReviewById(long id) {
         Review review = reviewStorage.getReviewById(id);
         reviewStorage.deleteReviewById(id);
-        eventStorage.addEvent(review.getUserId(), "REVIEW", "REMOVE", review.getReviewId());
+        eventStorage.addEvent(review.getUserId(), EventType.REVIEW, EventOperation.REMOVE, review.getReviewId());
     }
 }

@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.EventOperation;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.*;
@@ -107,7 +109,7 @@ public class UserService {
         userStorage.checkIfUserExists(userId);
         userStorage.checkIfUserExists(friendId);
         friendshipStorage.addFriend(userId, friendId);
-        eventStorage.addEvent(userId, "FRIEND", "ADD", friendId);
+        eventStorage.addEvent(userId, EventType.FRIEND, EventOperation.ADD, friendId);
         log.info("Пользователь {} добавил в друзья пользователя {}", userId, friendId);
     }
 
@@ -116,7 +118,7 @@ public class UserService {
         userStorage.checkIfUserExists(friendId);
         if (friendshipStorage.checkIfUserHasFriend(userId, friendId)) {
             friendshipStorage.deleteFriend(userId, friendId);
-            eventStorage.addEvent(userId, "FRIEND", "REMOVE", friendId);
+            eventStorage.addEvent(userId, EventType.FRIEND, EventOperation.REMOVE, friendId);
             log.info("Пользователь {} удалил из друзей пользователя {}", userId, friendId);
         } else {
             log.info("У пользователя {} нет в друзьях пользователя {}", userId, friendId);
