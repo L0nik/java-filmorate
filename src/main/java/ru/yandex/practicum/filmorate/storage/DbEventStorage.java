@@ -3,6 +3,8 @@ package ru.yandex.practicum.filmorate.storage;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.EventOperation;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.storage.mappers.EventRowMapper;
 
 import java.util.Collection;
@@ -25,13 +27,13 @@ public class DbEventStorage extends DbBaseStorage<Event> implements EventStorage
     }
 
     @Override
-    public void addEvent(long userId, String eventType, String operation, long entityId) {
+    public void addEvent(long userId, EventType eventType, EventOperation operation, long entityId) {
         insert(
                 INSERT_EVENT_QUERY,
                 System.currentTimeMillis(),
                 userId,
-                eventType,
-                operation,
+                eventType.name(),
+                operation.name(),
                 entityId
         );
     }

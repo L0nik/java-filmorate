@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.EventOperation;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.*;
@@ -60,6 +62,7 @@ public class UserService {
     }
 
     public User addUser(User newUser) {
+        validateUser(newUser);
         if (newUser.getName() == null || newUser.getName().isBlank()) {
             newUser.setName(newUser.getLogin());
         }
@@ -78,10 +81,12 @@ public class UserService {
 
         log.info("Начало обновления пользователя: {}", user);
         if (newUser.getEmail() != null) {
+            newUser.validateEmail();
             user.setEmail(newUser.getEmail());
         }
 
         if (newUser.getLogin() != null) {
+            newUser.validateLogin();
             user.setLogin(newUser.getLogin());
         }
 
@@ -92,6 +97,7 @@ public class UserService {
         }
 
         if (newUser.getBirthday() != null) {
+            newUser.validateBirthday();
             user.setBirthday(newUser.getBirthday());
         }
 
@@ -107,7 +113,7 @@ public class UserService {
         userStorage.checkIfUserExists(userId);
         userStorage.checkIfUserExists(friendId);
         friendshipStorage.addFriend(userId, friendId);
-        eventStorage.addEvent(userId, "FRIEND", "ADD", friendId);
+        eventStorage.addEvent(userId, EventType.FRIEND, EventOperation.ADD, friendId);
         log.info("Пользователь {} добавил в друзья пользователя {}", userId, friendId);
     }
 
@@ -116,7 +122,7 @@ public class UserService {
         userStorage.checkIfUserExists(friendId);
         if (friendshipStorage.checkIfUserHasFriend(userId, friendId)) {
             friendshipStorage.deleteFriend(userId, friendId);
-            eventStorage.addEvent(userId, "FRIEND", "REMOVE", friendId);
+            eventStorage.addEvent(userId, EventType.FRIEND, EventOperation.REMOVE, friendId);
             log.info("Пользователь {} удалил из друзей пользователя {}", userId, friendId);
         } else {
             log.info("У пользователя {} нет в друзьях пользователя {}", userId, friendId);
