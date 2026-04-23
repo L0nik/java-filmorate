@@ -103,7 +103,6 @@ public class DbReviewStorage extends DbBaseStorage<Review> implements ReviewStor
 
     @Override
     public void checkIfReviewExists(long id) {
-        log.info("Storage: проверка существования отзыва с id={}", id);
         getReviewById(id);
     }
 
@@ -119,4 +118,5 @@ public class DbReviewStorage extends DbBaseStorage<Review> implements ReviewStor
     private void setReviewUsefulness(Review review) {
         review.setUseful(getReviewUsefulness(review.getReviewId()));
     }
+
 }

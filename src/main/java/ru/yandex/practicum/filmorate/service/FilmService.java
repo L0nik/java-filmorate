@@ -69,7 +69,6 @@ public class FilmService {
     }
 
     public Film addFilm(Film newFilm) {
-        validateFilm(newFilm);
         if (newFilm.getMpa() != null) {
             newFilm.setMpa(ratingStorage.getRatingById(newFilm.getMpa().getId()));
         }
@@ -103,22 +102,18 @@ public class FilmService {
 
         log.info("Начало обновления фильма: {}", film);
         if (newFilm.getName() != null) {
-            newFilm.validateName();
             film.setName(newFilm.getName());
         }
 
         if (newFilm.getDescription() != null) {
-            newFilm.validateDescription();
             film.setDescription(newFilm.getDescription());
         }
 
         if (newFilm.getReleaseDate() != null) {
-            newFilm.validateReleaseDate();
             film.setReleaseDate(newFilm.getReleaseDate());
         }
 
         if (newFilm.getDuration() != null) {
-            newFilm.validateDuration();
             film.setDuration(newFilm.getDuration());
         }
 
@@ -166,6 +161,18 @@ public class FilmService {
     }
 
     public Collection<Film> getTopFilmsByLikes(@Nullable Integer count, @Nullable Long genreId, @Nullable Integer year) {
+        if (count != null && count < 0) {
+            throw new ValidationException("Параметр count не может быть меньше 0");
+        }
+        if (genreId != null && genreId <= 0) {
+            throw new ValidationException("Параметр genreId должен быть положительным числом");
+        }
+        if (year != null && year <= 0) {
+            throw new ValidationException("Год должен быть положительным числом");
+        }
+        if (count == null && genreId == null && year == null) {
+            count = 10;
+        }
         if (genreId != null) {
             genreStorage.checkIfGenreExists(genreId);
         }
@@ -248,14 +255,5 @@ public class FilmService {
         });
 
         return commonFilms;
-    }
-
-    private void validateFilm(Film film) {
-        log.info("Начало валидации фильма {}", film);
-        film.validateName();
-        film.validateDescription();
-        film.validateReleaseDate();
-        film.validateDuration();
-        log.info("Валидация фильма завершилась успешно {}", film);
     }
 }

@@ -1,9 +1,9 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.FilmSearchField;
 import ru.yandex.practicum.filmorate.service.FilmService;
@@ -21,13 +21,13 @@ public class FilmController {
     private final FilmService filmService;
 
     @PostMapping
-    public Film addFilm(@RequestBody Film newFilm) {
+    public Film addFilm(@Valid @RequestBody Film newFilm) {
         log.info("Получен запрос на добавление фильма: {}", newFilm);
         return filmService.addFilm(newFilm);
     }
 
     @PutMapping
-    public Film updateFilm(@RequestBody Film newFilm) {
+    public Film updateFilm(@Valid @RequestBody Film newFilm) {
         log.info("Получен запрос на обновление фильма: {}", newFilm);
         return filmService.updateFilm(newFilm);
     }
@@ -80,18 +80,6 @@ public class FilmController {
                 genreId,
                 year
         );
-        if (count != null && count < 0) {
-            throw new ValidationException("Параметр count не может быть меньше 0");
-        }
-        if (genreId != null && genreId <= 0) {
-            throw new ValidationException("Параметр genreId должен быть положительным числом");
-        }
-        if (year != null && year <= 0) {
-            throw new ValidationException("Год должен быть положительным числом");
-        }
-        if (count == null && genreId == null && year == null) {
-            count = 10;
-        }
         return filmService.getTopFilmsByLikes(count, genreId, year);
     }
 

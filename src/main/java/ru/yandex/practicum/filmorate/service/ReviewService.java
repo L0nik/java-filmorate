@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.EventStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.ReviewReactionStorage;
 import ru.yandex.practicum.filmorate.storage.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -18,7 +17,6 @@ import java.util.Collection;
 @RequiredArgsConstructor
 public class ReviewService {
     private final ReviewStorage reviewStorage;
-    private final ReviewReactionStorage reactionStorage;
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
     private final EventStorage eventStorage;
@@ -40,7 +38,8 @@ public class ReviewService {
     }
 
     public Review addReview(Review newReview) {
-        validateReview(newReview);
+        userStorage.checkIfUserExists(newReview.getUserId());
+        filmStorage.checkIfFilmExists(newReview.getFilmId());
         Review review = reviewStorage.addReview(newReview);
         eventStorage.addEvent(review.getUserId(), "REVIEW", "ADD", review.getReviewId());
         return review;
@@ -58,12 +57,10 @@ public class ReviewService {
         log.info("Начало обновления отзыва: {}", review);
 
         if (newReview.getContent() != null) {
-            newReview.validateContent();
             review.setContent(newReview.getContent());
         }
 
         if (newReview.getIsPositive() != null) {
-            newReview.validateIsPositive();
             review.setIsPositive(newReview.getIsPositive());
         }
 
@@ -79,16 +76,5 @@ public class ReviewService {
         Review review = reviewStorage.getReviewById(id);
         reviewStorage.deleteReviewById(id);
         eventStorage.addEvent(review.getUserId(), "REVIEW", "REMOVE", review.getReviewId());
-    }
-
-    private void validateReview(Review review) {
-        log.info("Начало валидации отзыва {}", review);
-        review.validateContent();
-        review.validateUserId();
-        review.validateFilmId();
-        review.validateIsPositive();
-        userStorage.checkIfUserExists(review.getUserId());
-        filmStorage.checkIfFilmExists(review.getFilmId());
-        log.info("Валидация отзыва завершилась успешно {}", review);
     }
 }
